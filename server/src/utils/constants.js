@@ -10,7 +10,8 @@ export const CATEGORIES = [
   { id: "Other", name: "Other", icon: "HelpCircle", description: "Any civic complaint not listed above" },
 ];
 
-export const ROLES = {
+export const ROLES =
+ {
   CITIZEN: "user",
   ADMIN: "admin",
 };
