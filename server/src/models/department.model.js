@@ -41,6 +41,10 @@ const departmentSchema = new mongoose.Schema(
   }
 );
 
+<<<<<<< HEAD
 const Department = mongoose.model("Department", departmentSchema);
 
+=======
+const Department = mongoose.model("Department", departmentSchema)
+>>>>>>> 821e155c4c5879245d6afb87c0015b4fd12d72b0
 export default Department;

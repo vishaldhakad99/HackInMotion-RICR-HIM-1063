@@ -91,4 +91,4 @@ const IssueCard = ({ issue, onUpvote, isUpvoted = false }) => {
 };
 
 export default IssueCard;
-
+ 
