@@ -59,13 +59,21 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
   const links = isAdmin ? adminLinks : citizenLinks;
 
   const renderContent = () => (
-    <div className="flex flex-col justify-between h-full p-4 space-y-6">
-      <div className="space-y-6">
+    <div className="flex flex-col justify-between min-h-full p-4 space-y-4">
+      <div className="space-y-4">
         {/* User Info Header */}
         <div className="flex items-center gap-3 p-3 bg-slate-800/90 rounded-2xl border border-slate-700/60 shadow-inner">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow shrink-0">
-            {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-          </div>
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user?.name || "User Avatar"}
+              className="w-10 h-10 rounded-xl object-cover shadow shrink-0 border border-slate-700"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow shrink-0">
+              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+            </div>
+          )}
           <div className="truncate min-w-0">
             <h4 className="text-xs font-bold text-slate-100 truncate">{user?.name || "Logged In User"}</h4>
             <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
@@ -87,7 +95,7 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
                 key={link.path}
                 to={link.path}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isActive
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/30 font-bold"
                     : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
@@ -102,10 +110,10 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
       </div>
 
       {/* Footer Logout */}
-      <div className="pt-4 border-t border-slate-800">
+      <div className="pt-3 border-t border-slate-800 mt-2">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition"
         >
           <LogOut className="w-4 h-4 text-rose-400" />
           <span>Logout</span>
@@ -116,8 +124,8 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
 
   return (
     <>
-      {/* Desktop Sidebar (Always displayed on md screens and up when logged in) */}
-      <aside className="w-64 bg-slate-900 text-white min-h-[calc(100vh-4rem)] shrink-0 shadow-lg hidden md:block border-r border-slate-800">
+      {/* Desktop Sidebar (Sticky positioned to stay fixed while page scrolls) */}
+      <aside className="w-64 bg-slate-900 text-white h-[calc(100vh-4rem)] sticky top-16 self-start shrink-0 shadow-lg hidden md:block border-r border-slate-800 overflow-y-auto">
         {renderContent()}
       </aside>
 
