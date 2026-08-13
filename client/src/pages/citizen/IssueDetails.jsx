@@ -29,7 +29,6 @@ const IssueDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, role } = useAuth();
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [issue, setIssue] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -121,11 +120,11 @@ const IssueDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-        <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
-        <div className="flex-1 flex w-full">
-          <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+        <Navbar />
+        <div className="flex-1 flex max-w-7xl mx-auto w-full">
+          <Sidebar />
           <main className="flex-1 p-8">
-            <Loader text="Loading issue details..." />
+            <Loader text="Loading detailed issue records..." />
           </main>
         </div>
       </div>
@@ -135,9 +134,9 @@ const IssueDetails = () => {
   if (error || !issue) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-        <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
-        <div className="flex-1 flex w-full">
-          <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+        <Navbar />
+        <div className="flex-1 flex max-w-7xl mx-auto w-full">
+          <Sidebar />
           <main className="flex-1 p-8">
             <ErrorMessage message={error || "Issue not found"} onRetry={fetchIssueDetails} />
           </main>
@@ -151,10 +150,10 @@ const IssueDetails = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+      <Navbar />
 
-      <div className="flex-1 flex w-full">
-        <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+      <div className="flex-1 flex max-w-7xl mx-auto w-full">
+        <Sidebar />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
           {/* Header Card */}

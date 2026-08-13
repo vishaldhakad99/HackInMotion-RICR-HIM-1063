@@ -19,7 +19,6 @@ import { issueService } from "../../services/issueService";
 import { formatDate } from "../../utils/helpers";
 
 const AdminDashboard = () => {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,10 +54,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+      <Navbar />
 
-      <div className="flex-1 flex w-full">
-        <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+      <div className="flex-1 flex max-w-7xl mx-auto w-full">
+        <Sidebar />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
           {/* Header */}
@@ -87,7 +86,7 @@ const AdminDashboard = () => {
           ) : (
             <>
               {/* Dashboard Metrics Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-xs font-semibold">Total Issues</span>

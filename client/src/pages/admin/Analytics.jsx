@@ -34,7 +34,6 @@ import { analyticsService } from "../../services/analyticsService";
 const COLORS = ["#3b82f6", "#10b981", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"];
 
 const Analytics = () => {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [overview, setOverview] = useState(null);
   const [categoriesData, setCategoriesData] = useState([]);
   const [statusData, setStatusData] = useState([]);
@@ -78,10 +77,10 @@ const Analytics = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+      <Navbar />
 
-      <div className="flex-1 flex w-full">
-        <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+      <div className="flex-1 flex max-w-7xl mx-auto w-full">
+        <Sidebar />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
           {/* Header */}

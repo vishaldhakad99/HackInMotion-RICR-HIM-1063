@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Filter, Search, MapPin, RefreshCw, Info } from "lucide-react";
 import Navbar from "../../components/Navbar";
-import Sidebar from "../../components/Sidebar";
 import MapView from "../../components/MapView";
 import Loader from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 import { issueService } from "../../services/issueService";
 import { CATEGORIES, STATUS_OPTIONS } from "../../utils/constants";
-import { useAuth } from "../../context/AuthContext";
 
 const CityMap = () => {
-  const { isAuthenticated } = useAuth();
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,17 +50,9 @@ const CityMap = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+      <Navbar />
 
-      <div className="flex-1 flex w-full">
-        {isAuthenticated && (
-          <Sidebar
-            isOpen={mobileSidebarOpen}
-            onClose={() => setMobileSidebarOpen(false)}
-          />
-        )}
-
-        <main className="flex-1 flex flex-col p-4 sm:p-6 max-w-full overflow-hidden space-y-4">
+      <main className="flex-1 flex flex-col p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-4">
         {/* Filter Controls Bar */}
         <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -157,7 +145,6 @@ const CityMap = () => {
           )}
         </div>
       </main>
-      </div>
     </div>
   );
 };

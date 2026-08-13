@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, RefreshCw } from "lucide-react";
+import { Search, Filter, RefreshCw, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 import IssueStatusBadge from "../../components/IssueStatusBadge";
@@ -12,7 +12,6 @@ import { CATEGORIES, STATUS_OPTIONS, PRIORITY_OPTIONS } from "../../utils/consta
 import { formatDate, getImageUrl, getPriorityBadgeClass } from "../../utils/helpers";
 
 const AdminIssues = () => {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [issues, setIssues] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,10 +74,10 @@ const AdminIssues = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+      <Navbar />
 
-      <div className="flex-1 flex w-full">
-        <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+      <div className="flex-1 flex max-w-7xl mx-auto w-full">
+        <Sidebar />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
           {/* Header */}

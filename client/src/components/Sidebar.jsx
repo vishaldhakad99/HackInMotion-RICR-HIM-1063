@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -12,23 +12,13 @@ import {
   BarChart3,
   Users as UsersIcon,
   ShieldCheck,
-  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
-  const { user, role, logout, isAuthenticated } = useAuth();
+const Sidebar = () => {
+  const { user, role, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Auto-close mobile drawer on route change
-  useEffect(() => {
-    if (isOpen) {
-      onClose();
-    }
-  }, [location.pathname]);
-
-  if (!isAuthenticated) return null;
 
   const handleLogout = () => {
     logout();
@@ -58,26 +48,17 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
 
   const links = isAdmin ? adminLinks : citizenLinks;
 
-  const renderContent = () => (
-    <div className="flex flex-col justify-between min-h-full p-4 space-y-4">
-      <div className="space-y-4">
+  return (
+    <aside className="w-64 bg-slate-900 text-white min-h-[calc(100vh-4rem)] flex flex-col justify-between p-4 shrink-0 shadow-lg hidden md:flex">
+      <div className="space-y-6">
         {/* User Info Header */}
-        <div className="flex items-center gap-3 p-3 bg-slate-800/90 rounded-2xl border border-slate-700/60 shadow-inner">
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user?.name || "User Avatar"}
-              className="w-10 h-10 rounded-xl object-cover shadow shrink-0 border border-slate-700"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow shrink-0">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-            </div>
-          )}
-          <div className="truncate min-w-0">
-            <h4 className="text-xs font-bold text-slate-100 truncate">{user?.name || "Logged In User"}</h4>
-            <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
-            <span className="inline-flex items-center gap-1 mt-0.5 text-[9px] font-semibold text-blue-400 uppercase tracking-wider">
+        <div className="flex items-center gap-3 p-3 bg-slate-800/80 rounded-2xl border border-slate-700/50">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow">
+            {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+          </div>
+          <div className="truncate">
+            <h4 className="text-xs font-bold text-slate-100 truncate">{user?.name}</h4>
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 uppercase tracking-wider">
               {isAdmin ? <ShieldCheck className="w-3 h-3 text-emerald-400" /> : null}
               {isAdmin ? "Administrator" : "Citizen"}
             </span>
@@ -94,10 +75,9 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
               <Link
                 key={link.path}
                 to={link.path}
-                onClick={onClose}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold transition-all ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/30 font-bold"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                     : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
                 }`}
               >
@@ -110,53 +90,16 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
       </div>
 
       {/* Footer Logout */}
-      <div className="pt-3 border-t border-slate-800 mt-2">
+      <div className="pt-4 border-t border-slate-800">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition"
+          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition"
         >
           <LogOut className="w-4 h-4 text-rose-400" />
           <span>Logout</span>
         </button>
       </div>
-    </div>
-  );
-
-  return (
-    <>
-      {/* Desktop Sidebar (Sticky positioned to stay fixed while page scrolls) */}
-      <aside className="w-64 bg-slate-900 text-white h-[calc(100vh-4rem)] sticky top-16 self-start shrink-0 shadow-lg hidden md:block border-r border-slate-800 overflow-y-auto">
-        {renderContent()}
-      </aside>
-
-      {/* Mobile Drawer Sidebar (Displayed when isOpen is true on mobile viewports) */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
-          {/* Overlay Backdrop */}
-          <div
-            className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity"
-            onClick={onClose}
-          />
-
-          {/* Drawer Container */}
-          <aside className="relative w-72 bg-slate-900 text-white min-h-full flex flex-col justify-between shadow-2xl z-10">
-            <div className="flex items-center justify-between p-4 border-b border-slate-800">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Navigation Menu</span>
-              <button
-                onClick={onClose}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
-                aria-label="Close navigation sidebar"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {renderContent()}
-            </div>
-          </aside>
-        </div>
-      )}
-    </>
+    </aside>
   );
 };
 

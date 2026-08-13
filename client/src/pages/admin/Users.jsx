@@ -4,7 +4,6 @@ import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 
 const Users = () => {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [users, setUsers] = useState([
     { _id: "1", name: "Rahul Citizen", email: "citizen@example.com", role: "user", createdAt: "2026-08-12" },
     { _id: "2", name: "Civic Admin", email: "admin@civic.gov.in", role: "admin", createdAt: "2026-08-12" },
@@ -21,10 +20,10 @@ const Users = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+      <Navbar />
 
-      <div className="flex-1 flex w-full">
-        <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
+      <div className="flex-1 flex max-w-7xl mx-auto w-full">
+        <Sidebar />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
