@@ -106,5 +106,4 @@ const ImageUploader = ({ onImageUploaded, images = [], maxFiles = 3 }) => {
     </div>
   );
 };
-
 export default ImageUploader;
