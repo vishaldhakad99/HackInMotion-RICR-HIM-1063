@@ -1,8 +1,6 @@
 import { successResponse, errorResponse } from "../utils/response.js";
 
-// @desc    Upload single or multiple images
-// @route   POST /api/upload/image
-// @access  Private / Public
+
 export const uploadImage = async (req, res) => {
   try {
     const protocol = req.protocol;
