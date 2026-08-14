@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -12,17 +12,68 @@ import {
   BarChart3,
   Users as UsersIcon,
   ShieldCheck,
+  Camera,
+  Loader2,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { authService } from "../services/authService";
+import { issueService } from "../services/issueService";
 
 const Sidebar = () => {
-  const { user, role, logout } = useAuth();
+  const { user, role, logout, updateUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file.");
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const toastId = toast.loading("Uploading profile picture...");
+
+      const uploadRes = await issueService.uploadImage(file);
+      const avatarUrl = uploadRes.data?.url || uploadRes.data?.path;
+
+      if (!avatarUrl) {
+        toast.dismiss(toastId);
+        toast.error("Failed to upload image.");
+        setUploadingAvatar(false);
+        return;
+      }
+
+      const profileRes = await authService.updateProfile({ avatar: avatarUrl });
+
+      if (profileRes.success) {
+        updateUser({ avatar: avatarUrl });
+        toast.dismiss(toastId);
+        toast.success("Profile picture updated successfully!");
+      } else {
+        toast.dismiss(toastId);
+        toast.error(profileRes.message || "Failed to update profile picture.");
+      }
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err.response?.data?.message || err.message || "Upload failed.");
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   const isAdmin = role === "admin";
@@ -31,7 +82,7 @@ const Sidebar = () => {
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { label: "Report Issue", path: "/report-issue", icon: PlusCircle },
     { label: "My Issues", path: "/my-issues", icon: FileText },
-    { label: "City Map", path: "/city-map", icon: MapPin },
+    { label: "Live Location Map", path: "/city-map", icon: MapPin },
     { label: "Notifications", path: "/notifications", icon: Bell },
     { label: "Profile", path: "/profile", icon: User },
   ];
@@ -40,7 +91,7 @@ const Sidebar = () => {
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
     { label: "Issues Management", path: "/admin/issues", icon: FileText },
     { label: "Departments", path: "/admin/departments", icon: Building2 },
-    { label: "City Map", path: "/city-map", icon: MapPin },
+    { label: "Live Location Map", path: "/city-map", icon: MapPin },
     { label: "Analytics", path: "/admin/analytics", icon: BarChart3 },
     { label: "Users List", path: "/admin/users", icon: UsersIcon },
     { label: "Admin Profile", path: "/admin/profile", icon: User },
@@ -70,16 +121,44 @@ const Sidebar = () => {
             </div>
           </Link>
 
-          {/* User Info Header */}
+          {/* User Info Header with Profile Photo Upload */}
           <div className="flex items-center gap-3 p-3 bg-slate-800/80 rounded-2xl border border-slate-700/50">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow shrink-0 overflow-hidden">
-              {user?.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-              ) : (
-                <span>{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
-              )}
+            <div className="relative group shrink-0">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow overflow-hidden relative border border-slate-600">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.name || "User"} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
+                )}
+
+                {uploadingAvatar && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </div>
+                )}
+              </div>
+
+              {/* Upload Camera Overlay Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0088cc] hover:bg-[#0077bb] text-white rounded-full flex items-center justify-center shadow-md border border-slate-900 transition-transform hover:scale-110 cursor-pointer"
+                title="Upload profile photo"
+              >
+                <Camera className="w-3 h-3" />
+              </button>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+                accept="image/*"
+                className="hidden"
+              />
             </div>
-            <div className="truncate">
+
+            <div className="truncate flex-1">
               <h4 className="text-xs font-bold text-slate-100 truncate">{user?.name}</h4>
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 uppercase tracking-wider">
                 {isAdmin ? <ShieldCheck className="w-3 h-3 text-emerald-400" /> : null}
@@ -116,7 +195,7 @@ const Sidebar = () => {
         <div className="pt-4 mt-auto border-t border-slate-800 shrink-0">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition"
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition cursor-pointer"
           >
             <LogOut className="w-4 h-4 text-rose-400" />
             <span>Logout</span>
@@ -128,3 +207,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

@@ -2,10 +2,11 @@ import User from "../models/user.model.js";
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
+      data: users,
       users,
     });
   } catch (error) {
@@ -14,4 +15,4 @@ export const getUsers = async (req, res) => {
       message: error.message,
     });
   }
-};
+};

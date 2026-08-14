@@ -56,10 +56,16 @@ const CityMap = () => {
         {/* Filter Controls Bar */}
         <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-blue-600 shrink-0" />
+            <MapPin className="w-6 h-6 text-sky-600 shrink-0" />
             <div>
-              <h1 className="text-lg font-extrabold text-slate-900 leading-none">Interactive City Issue Map</h1>
-              <p className="text-[11px] text-slate-500 mt-0.5">Explore reported civic issues across all city sectors.</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-extrabold text-slate-900 leading-none">Live Location Issue Map</h1>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-700 text-[10px] font-extrabold rounded-full border border-sky-200 uppercase">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-600 animate-pulse"></span>
+                  Live GPS Active
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">Explore reported civic issues around your current live location.</p>
             </div>
           </div>
 
