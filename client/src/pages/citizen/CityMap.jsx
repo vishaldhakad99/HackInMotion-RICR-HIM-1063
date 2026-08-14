@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Filter, Search, MapPin, RefreshCw, Info, Loader2, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Filter, Search, MapPin, RefreshCw, Info, Loader2, X, ArrowLeft, Home } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import MapView from "../../components/MapView";
 import Loader from "../../components/Loader";
@@ -361,10 +362,22 @@ const CityMap = () => {
             />
           )}
         </div>
+
+        {/* Back to Home Button */}
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-100 text-slate-800 font-extrabold text-xs rounded-2xl border border-slate-200 shadow-sm hover:shadow transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5"
+          >
+            <ArrowLeft className="w-4 h-4 text-sky-600" />
+            <span>Back to Home</span>
+          </Link>
+        </div>
       </main>
     </div>
   );
 };
 
 export default CityMap;
+
 

@@ -1,0 +1,10 @@
+{
+  "plugins": ["oxc"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-var": "error",
+    "prefer-const": "warn"
+  }
+}
