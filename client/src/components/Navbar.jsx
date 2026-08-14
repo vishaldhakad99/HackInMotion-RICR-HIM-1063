@@ -10,8 +10,6 @@ import {
   PlusCircle,
   MapPin,
   LayoutDashboard,
-  Shield,
-  CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { notificationService } from "../services/notificationService";
@@ -59,32 +57,35 @@ const Navbar = () => {
   };
 
   const dashboardPath = role === "admin" ? "/admin" : "/dashboard";
+  const hasSidebar = isAuthenticated && location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/register";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className={`sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-300 ${hasSidebar ? "md:ml-64" : ""}`}>
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition">
-              <Building2 className="w-5 h-5" />
+          <Link to="/" className={`flex items-center gap-3 group ${hasSidebar ? "md:hidden" : ""}`}>
+            <div className="w-10 h-10 bg-[#0088cc] rounded-xl flex items-center justify-center text-white shadow-md shadow-sky-600/20 group-hover:scale-105 transition-transform duration-200">
+              <Building2 className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-xl tracking-tight text-slate-900 leading-none">
-                Civic<span className="text-blue-600">Connect</span>
+              <span className="font-extrabold text-xl tracking-tight text-[#0f172a] leading-none">
+                Civic<span className="text-[#0088cc]">Connect</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase mt-0.5">
-                Smart City Platform
+              <span className="text-[9px] text-[#0088cc] font-extrabold tracking-widest uppercase mt-1">
+                SMART CITY PLATFORM
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             <Link
               to="/"
-              className={`text-sm font-medium transition ${
-                location.pathname === "/" ? "text-blue-600 font-bold" : "text-slate-600 hover:text-blue-600"
+              className={`text-sm font-bold transition-colors duration-200 ${
+                location.pathname === "/"
+                  ? "text-[#0088cc]"
+                  : "text-slate-700 hover:text-[#0088cc]"
               }`}
             >
               Home
@@ -92,11 +93,13 @@ const Navbar = () => {
 
             <Link
               to="/city-map"
-              className={`text-sm font-medium flex items-center gap-1.5 transition ${
-                location.pathname === "/city-map" ? "text-blue-600 font-bold" : "text-slate-600 hover:text-blue-600"
+              className={`text-sm font-bold flex items-center gap-1.5 transition-colors duration-200 ${
+                location.pathname === "/city-map"
+                  ? "text-[#0088cc]"
+                  : "text-slate-700 hover:text-[#0088cc]"
               }`}
             >
-              <MapPin className="w-4 h-4 text-blue-500" />
+              <MapPin className="w-4 h-4 text-[#0088cc]" />
               City Map
             </Link>
 
@@ -104,22 +107,22 @@ const Navbar = () => {
               <>
                 <Link
                   to={dashboardPath}
-                  className={`text-sm font-medium flex items-center gap-1.5 transition ${
+                  className={`text-sm font-bold flex items-center gap-1.5 transition-colors duration-200 ${
                     location.pathname.startsWith("/admin") || location.pathname === "/dashboard"
-                      ? "text-blue-600 font-bold"
-                      : "text-slate-600 hover:text-blue-600"
+                      ? "text-[#0088cc]"
+                      : "text-slate-700 hover:text-[#0088cc]"
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4 text-slate-400" />
                   Dashboard
                 </Link>
 
                 {role !== "admin" && (
                   <Link
                     to="/report-issue"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm transition"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0088cc] hover:bg-[#0077bb] text-white text-xs font-bold rounded-full shadow-sm transition-all transform hover:scale-[1.02]"
                   >
-                    <PlusCircle className="w-4 h-4" />
+                    <PlusCircle className="w-4 h-4 stroke-[2.5]" />
                     Report Issue
                   </Link>
                 )}
@@ -135,11 +138,12 @@ const Navbar = () => {
                 <div className="relative">
                   <button
                     onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition relative"
+                    className="p-2 text-slate-600 hover:text-sky-600 hover:bg-slate-100 rounded-xl transition relative"
+                    aria-label="Notifications"
                   >
                     <Bell className="w-5 h-5" />
                     {unreadCount > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                      <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-sky-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white">
                         {unreadCount}
                       </span>
                     )}
@@ -147,9 +151,9 @@ const Navbar = () => {
 
                   {/* Notifications Dropdown */}
                   {notificationsOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50">
                       <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                        <h4 className="font-bold text-sm text-slate-800">Notifications</h4>
+                        <h4 className="font-bold text-sm text-slate-900">Notifications</h4>
                         <span className="text-xs text-slate-500">{unreadCount} unread</span>
                       </div>
                       <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
@@ -161,13 +165,13 @@ const Navbar = () => {
                               key={n._id}
                               onClick={() => handleMarkRead(n._id)}
                               className={`p-3 text-xs cursor-pointer hover:bg-slate-50 transition ${
-                                !n.isRead ? "bg-blue-50/50" : ""
+                                !n.isRead ? "bg-sky-50/60" : ""
                               }`}
                             >
                               <div className="flex items-start justify-between gap-1">
-                                <p className="font-bold text-slate-800">{n.title}</p>
+                                <p className="font-bold text-slate-900">{n.title}</p>
                                 {!n.isRead && (
-                                  <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0"></span>
+                                  <span className="w-2 h-2 rounded-full bg-sky-600 shrink-0"></span>
                                 )}
                               </div>
                               <p className="text-slate-600 mt-1 leading-snug">{n.message}</p>
@@ -183,10 +187,14 @@ const Navbar = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2.5 p-1.5 rounded-xl border border-slate-200 hover:border-blue-300 bg-slate-50/50 transition"
+                    className="flex items-center gap-2.5 p-1.5 rounded-xl border border-slate-200 hover:border-sky-300 bg-slate-50/60 transition"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">
-                      {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-600 to-cyan-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs overflow-hidden">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
+                      )}
                     </div>
                     <div className="text-left hidden lg:block">
                       <p className="text-xs font-bold text-slate-900 leading-tight">{user?.name}</p>
@@ -198,7 +206,7 @@ const Navbar = () => {
 
                   {/* Profile Dropdown */}
                   {userDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-1.5 z-50">
                       <div className="px-4 py-2 border-b border-slate-100">
                         <p className="text-xs font-bold text-slate-900">{user?.name}</p>
                         <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
@@ -209,7 +217,7 @@ const Navbar = () => {
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
                       >
-                        <User className="w-4 h-4 text-slate-500" />
+                        <User className="w-4 h-4 text-slate-400" />
                         My Profile
                       </Link>
 
@@ -225,16 +233,16 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-blue-600 transition"
+                  className="px-3 py-2 text-xs font-bold text-slate-800 hover:text-[#0088cc] transition"
                 >
                   Log In
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition"
+                  className="px-6 py-2.5 bg-[#0088cc] hover:bg-[#0077bb] text-white text-xs font-extrabold rounded-full shadow-md shadow-sky-600/20 transition-all transform hover:scale-[1.02]"
                 >
                   Register
                 </Link>
@@ -246,7 +254,8 @@ const Navbar = () => {
           <div className="md:hidden flex items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl"
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition"
+              aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -260,14 +269,14 @@ const Navbar = () => {
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-sm font-semibold text-slate-800"
+            className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
           >
             Home
           </Link>
           <Link
             to="/city-map"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-sm font-semibold text-slate-800"
+            className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
           >
             City Map
           </Link>
@@ -277,7 +286,7 @@ const Navbar = () => {
               <Link
                 to={dashboardPath}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-sm font-semibold text-slate-800"
+                className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
               >
                 Dashboard
               </Link>
@@ -285,7 +294,7 @@ const Navbar = () => {
                 <Link
                   to="/report-issue"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 text-sm font-bold text-blue-600"
+                  className="block py-2 text-sm font-bold text-sky-600"
                 >
                   + Report Issue
                 </Link>
@@ -302,14 +311,14 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-sm font-bold text-slate-800 border border-slate-200 rounded-xl"
+                className="w-full py-2.5 text-center text-sm font-bold text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50"
               >
                 Log In
               </Link>
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-sm font-bold text-white bg-blue-600 rounded-xl"
+                className="w-full py-2.5 text-center text-sm font-bold text-white bg-gradient-to-r from-sky-600 to-cyan-600 rounded-xl"
               >
                 Register
               </Link>
