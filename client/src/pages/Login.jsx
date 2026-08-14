@@ -17,6 +17,9 @@ const Login = () => {
     rememberMe: false,
   });
 
+
+  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +56,8 @@ const Login = () => {
     }
   };
 
+
+  
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Navbar />
@@ -203,5 +208,7 @@ const Login = () => {
   </div>
 );
 };
-
 export default Login;
+
+
+
