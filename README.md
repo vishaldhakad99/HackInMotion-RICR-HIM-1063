@@ -104,8 +104,8 @@ npm install
 Create a `.env` file in the `server` root directory:
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/civicconnect
-JWT_SECRET=civic_connect_super_secret_jwt_key_2026
+MONGO_URI=mongodb://localhost:27017/civicconnect________________
+JWT_SECRET=civic_connect_super_secret___________2026
 NODE_ENV=development
 ```
 
@@ -113,7 +113,6 @@ Seed initial municipal demo data (departments, admin account, sample citizen tic
 ```bash
 npm run seed
 ```
-
 Start the backend API server:
 ```bash
 npm run dev
