@@ -31,6 +31,9 @@
 
 ---
 
+
+
+
 ## 🛠️ Technology Stack
 
 | Layer | Technologies Used |
@@ -81,6 +84,9 @@ HackMotion/
 ```
 
 ---
+
+
+
 
 ## 🚀 Quick Start & Local Setup
 
@@ -136,6 +142,10 @@ Frontend Web Portal will open at `http://localhost:5173`.
 
 ---
 
+
+
+
+
 ## 🔑 Demo Test Credentials
 
 | Portal Role | Email Address | Password | Privileges |
@@ -144,6 +154,11 @@ Frontend Web Portal will open at `http://localhost:5173`.
 | **Administrator** | `admin@civicconnect.gov.in` | `admin123` | Manage all city issues, reassign departments, update resolution statuses, upload fix proof photos, access Recharts analytics |
 
 ---
+
+
+
+
+
 
 ## 📡 REST API Reference
 
@@ -166,6 +181,3 @@ Frontend Web Portal will open at `http://localhost:5173`.
 
 ---
 
-## 📜 License
-
-This project is licensed under the **ISC License**. Developed for modern smart city governance.
