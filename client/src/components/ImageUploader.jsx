@@ -87,6 +87,7 @@ const ImageUploader = ({ onImageUploaded, images = [], maxFiles = 3 }) => {
       )}
 
       {/* Previews */}
+      
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {images.map((url, idx) => (
@@ -99,6 +100,7 @@ const ImageUploader = ({ onImageUploaded, images = [], maxFiles = 3 }) => {
               >
                 
                 <X className="w-4 h-4" />
+                
               </button>
             </div>
           ))}
