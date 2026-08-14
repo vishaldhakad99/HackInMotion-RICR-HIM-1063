@@ -358,8 +358,10 @@ const ReportIssue = () => {
               {currentStep === 3 && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">Step 3 — Upload Evidence Photo</h3>
-                    <p className="text-xs text-slate-500">Upload clear photos showing the issue to assist municipal teams.</p>
+                    <h3 className="text-base font-bold text-slate-900">Step 3 — Evidence Photo</h3>
+                    <p className="text-xs text-slate-500">
+                      Upload clear photos from your device or use your live camera to take evidence photos.
+                    </p>
                   </div>
 
                   <ImageUploader
