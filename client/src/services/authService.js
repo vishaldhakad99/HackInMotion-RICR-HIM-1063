@@ -34,6 +34,16 @@ export const authService = {
     return response.data;
   },
 
+  forgotPassword: async (email) => {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  },
+
+  resetPassword: async (resetToken, password) => {
+    const response = await api.put(`/auth/reset-password/${resetToken}`, { password });
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -44,3 +54,4 @@ export const authService = {
     return userStr ? JSON.parse(userStr) : null;
   },
 };
+

@@ -133,9 +133,9 @@ const Login = () => {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-xs font-bold text-slate-700">Password</label>
-                <a href="#" onClick={(e) => { e.preventDefault(); toast.error("Password reset functionality initialized."); }} className="text-[11px] font-semibold text-blue-600 hover:underline">
+                <Link to="/forgot-password" className="text-[11px] font-semibold text-blue-600 hover:underline">
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
