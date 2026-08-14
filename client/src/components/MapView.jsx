@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { Navigation, AlertCircle } from "lucide-react";
+import "leaflet/dist/leaflet.css";
 import IssueStatusBadge from "./IssueStatusBadge";
 import { getImageUrl } from "../utils/helpers";
 
-// Fix default Leaflet icon paths
+// Self-contained inline SVG Data URI for default Leaflet marker (No external CDN image dependencies)
+const defaultPinSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230284c7" width="32" height="32" stroke="%23ffffff" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconRetinaUrl: defaultPinSvg,
+  iconUrl: defaultPinSvg,
+  shadowUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>",
 });
 
 // Custom colored pin creator for issues
@@ -54,6 +57,30 @@ const createLiveUserIcon = () => {
   });
 };
 
+// Searched City Location Marker
+const createSearchLocationIcon = () => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#6366f1" width="36" height="36" stroke="#ffffff" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
+  return L.divIcon({
+    html: svg,
+    className: "custom-searched-marker",
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36],
+  });
+};
+
+// Helper component to fix gray tiles by invalidating size on mount
+const InvalidateMapSize = () => {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+};
+
 // Component to handle map clicks for pin placement
 const LocationPicker = ({ onLocationSelect }) => {
   useMapEvents({
@@ -67,12 +94,18 @@ const LocationPicker = ({ onLocationSelect }) => {
   return null;
 };
 
-// Component to re-center map dynamically
+// Component to re-center map dynamically with flyTo
 const RecenterMap = ({ center, zoom = 14 }) => {
   const map = useMap();
+  const prevCenterRef = useRef(null);
+
   useEffect(() => {
     if (center && center[0] && center[1]) {
-      map.setView(center, zoom, { animate: true });
+      const [lat, lng] = center;
+      if (!prevCenterRef.current || prevCenterRef.current[0] !== lat || prevCenterRef.current[1] !== lng) {
+        prevCenterRef.current = [lat, lng];
+        map.flyTo([lat, lng], zoom, { animate: true, duration: 1.2 });
+      }
     }
   }, [center, zoom, map]);
   return null;
@@ -83,6 +116,7 @@ const MapView = ({
   zoom = 14,
   selectable = false,
   selectedLocation = null,
+  searchedLocation = null,
   onLocationSelect = null,
   issues = [],
   showLiveUserLocation = true,
@@ -113,7 +147,7 @@ const MapView = ({
         },
         (err) => {
           console.warn("Geolocation warning:", err.message);
-          setGpsError("Live GPS unavailable. Showing city view.");
+          setGpsError("Live GPS unavailable. Showing default location.");
           setIsLocating(false);
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
@@ -154,13 +188,17 @@ const MapView = ({
   const defaultFallbackCenter = [19.076, 72.8777]; // Mumbai
   const effectiveCenter =
     manualCenter ||
-    (selectedLocation?.latitude && selectedLocation?.longitude
+    (searchedLocation?.latitude && searchedLocation?.longitude
+      ? [searchedLocation.latitude, searchedLocation.longitude]
+      : selectedLocation?.latitude && selectedLocation?.longitude
       ? [selectedLocation.latitude, selectedLocation.longitude]
       : center && center[0] && center[1]
       ? center
       : liveUserPos
       ? [liveUserPos.latitude, liveUserPos.longitude]
       : defaultFallbackCenter);
+
+  const effectiveZoom = searchedLocation ? 13 : zoom;
 
   return (
     <div className="relative w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
@@ -192,13 +230,25 @@ const MapView = ({
         </div>
       )}
 
-      <MapContainer center={effectiveCenter} zoom={zoom} scrollWheelZoom={true} className={className}>
+      <MapContainer center={effectiveCenter} zoom={effectiveZoom} scrollWheelZoom={true} className={className}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
+          maxZoom={19}
+          eventHandlers={{
+            tileerror: (e) => {
+              if (e.tile && !e.tile.dataset.retried) {
+                e.tile.dataset.retried = "true";
+                const coords = e.coords;
+                e.tile.src = `https://tile.openstreetmap.org/${coords.z}/${coords.x}/${coords.y}.png`;
+              }
+            },
+          }}
         />
 
-        <RecenterMap center={effectiveCenter} zoom={zoom} />
+        <InvalidateMapSize />
+        <RecenterMap center={effectiveCenter} zoom={effectiveZoom} />
 
         {selectable && <LocationPicker onLocationSelect={onLocationSelect} />}
 
@@ -228,6 +278,26 @@ const MapView = ({
               />
             )}
           </>
+        )}
+
+        {/* Searched City Location Marker */}
+        {searchedLocation && searchedLocation.latitude && searchedLocation.longitude && (
+          <Marker
+            position={[searchedLocation.latitude, searchedLocation.longitude]}
+            icon={createSearchLocationIcon()}
+          >
+            <Popup>
+              <div className="p-1 max-w-xs text-center">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full text-[10px] font-extrabold mb-1">
+                  Searched Location
+                </div>
+                <p className="font-extrabold text-xs text-slate-900 line-clamp-2">{searchedLocation.address || "Searched Position"}</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  Lat: {searchedLocation.latitude}, Lng: {searchedLocation.longitude}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
         )}
 
         {/* Selected location pin (for location picking forms) */}
@@ -291,4 +361,5 @@ const MapView = ({
 };
 
 export default MapView;
+
 
