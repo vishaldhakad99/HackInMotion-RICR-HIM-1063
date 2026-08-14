@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Building2, Eye, EyeOff, Lock, Mail, UserCheck, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
 
 const Login = () => {
   const { login } = useAuth();
@@ -53,18 +54,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-2">
-        <Link to="/" className="inline-flex items-center gap-2">
-          <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-            <Building2 className="w-6 h-6" />
-          </div>
-        </Link>
-        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sign in to CivicConnect</h2>
-        <p className="text-xs text-slate-500">Smart City Issue Reporting & Resolution Portal</p>
-      </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <Navbar />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+      <div className="flex-1 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 mb-6">
+          <Link to="/" className="inline-flex items-center justify-center group">
+            <div className="w-12 h-12 bg-[#0088cc] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-sky-600/20 group-hover:scale-105 transition-transform duration-200">
+              <Building2 className="w-6 h-6 stroke-[2.2]" />
+            </div>
+          </Link>
+          <div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Sign in to CivicConnect</h2>
+            <p className="text-xs text-slate-500 mt-1 font-medium">Smart City Issue Reporting & Resolution Portal</p>
+          </div>
+        </div>
+
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 sm:px-10 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-200/80">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Role Selector Tabs */}
@@ -194,7 +200,8 @@ const Login = () => {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default Login;

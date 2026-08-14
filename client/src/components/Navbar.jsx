@@ -57,13 +57,14 @@ const Navbar = () => {
   };
 
   const dashboardPath = role === "admin" ? "/admin" : "/dashboard";
+  const hasSidebar = isAuthenticated && location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/register";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className={`sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-300 ${hasSidebar ? "md:ml-64" : ""}`}>
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className={`flex items-center gap-3 group ${hasSidebar ? "md:hidden" : ""}`}>
             <div className="w-10 h-10 bg-[#0088cc] rounded-xl flex items-center justify-center text-white shadow-md shadow-sky-600/20 group-hover:scale-105 transition-transform duration-200">
               <Building2 className="w-5 h-5 stroke-[2.2]" />
             </div>
@@ -188,8 +189,12 @@ const Navbar = () => {
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                     className="flex items-center gap-2.5 p-1.5 rounded-xl border border-slate-200 hover:border-sky-300 bg-slate-50/60 transition"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-600 to-cyan-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
-                      {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-600 to-cyan-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs overflow-hidden">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
+                      )}
                     </div>
                     <div className="text-left hidden lg:block">
                       <p className="text-xs font-bold text-slate-900 leading-tight">{user?.name}</p>

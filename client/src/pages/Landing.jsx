@@ -40,6 +40,90 @@ const categoryIcons = {
   Other: Sparkles,
 };
 
+const categoryThemeMap = {
+  "Roads & Infrastructure": {
+    badge: "Infrastructure",
+    bg: "bg-amber-500/10",
+    border: "border-amber-200/80",
+    text: "text-amber-600",
+    hoverBg: "group-hover:bg-amber-500",
+    hoverShadow: "group-hover:shadow-amber-500/20",
+    borderHover: "hover:border-amber-300",
+  },
+  "Sanitation & Waste Management": {
+    badge: "Sanitation",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-200/80",
+    text: "text-emerald-600",
+    hoverBg: "group-hover:bg-emerald-500",
+    hoverShadow: "group-hover:shadow-emerald-500/20",
+    borderHover: "hover:border-emerald-300",
+  },
+  "Electricity & Street Lighting": {
+    badge: "Power & Grid",
+    bg: "bg-amber-500/10",
+    border: "border-amber-200/80",
+    text: "text-amber-600",
+    hoverBg: "group-hover:bg-amber-500",
+    hoverShadow: "group-hover:shadow-amber-500/20",
+    borderHover: "hover:border-amber-300",
+  },
+  "Water Supply & Drainage": {
+    badge: "Utilities",
+    bg: "bg-sky-500/10",
+    border: "border-sky-200/80",
+    text: "text-[#0088cc]",
+    hoverBg: "group-hover:bg-[#0088cc]",
+    hoverShadow: "group-hover:shadow-sky-500/20",
+    borderHover: "hover:border-sky-300",
+  },
+  "Public Property": {
+    badge: "Public Property",
+    bg: "bg-indigo-500/10",
+    border: "border-indigo-200/80",
+    text: "text-indigo-600",
+    hoverBg: "group-hover:bg-indigo-600",
+    hoverShadow: "group-hover:shadow-indigo-500/20",
+    borderHover: "hover:border-indigo-300",
+  },
+  "Parks & Recreation": {
+    badge: "Environment",
+    bg: "bg-teal-500/10",
+    border: "border-teal-200/80",
+    text: "text-teal-600",
+    hoverBg: "group-hover:bg-teal-600",
+    hoverShadow: "group-hover:shadow-teal-500/20",
+    borderHover: "hover:border-teal-300",
+  },
+  "Illegal Dumping": {
+    badge: "Enforcement",
+    bg: "bg-rose-500/10",
+    border: "border-rose-200/80",
+    text: "text-rose-600",
+    hoverBg: "group-hover:bg-rose-500",
+    hoverShadow: "group-hover:shadow-rose-500/20",
+    borderHover: "hover:border-rose-300",
+  },
+  Streetlights: {
+    badge: "Lighting",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-200/80",
+    text: "text-cyan-600",
+    hoverBg: "group-hover:bg-cyan-500",
+    hoverShadow: "group-hover:shadow-cyan-500/20",
+    borderHover: "hover:border-cyan-300",
+  },
+  Other: {
+    badge: "General",
+    bg: "bg-purple-500/10",
+    border: "border-purple-200/80",
+    text: "text-purple-600",
+    hoverBg: "group-hover:bg-purple-600",
+    hoverShadow: "group-hover:shadow-purple-500/20",
+    borderHover: "hover:border-purple-300",
+  },
+};
+
 const Landing = () => {
   const [stats, setStats] = useState({
     totalIssues: 142,
@@ -254,36 +338,110 @@ const Landing = () => {
       </section>
 
       {/* SECTION 2: STATS METRICS BAR */}
-      <section className="bg-white border-b border-slate-200/80 py-12 px-4 sm:px-6 lg:px-8 shadow-xs">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-6 gap-5 sm:gap-6">
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 text-center hover:border-sky-300 transition-all">
-            <p className="text-3xl font-black text-[#0f172a]">{stats.totalIssues}+</p>
-            <p className="text-xs font-bold text-slate-500 mt-1">Total Reported</p>
+      <section className="bg-slate-50/60 border-y border-slate-200/80 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header Live Status Ribbon */}
+          <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-[11px] font-extrabold tracking-widest text-emerald-700 uppercase">
+                Live City Analytics Stream
+              </span>
+            </div>
+            <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline-flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#0088cc]" />
+              Updated in real-time across municipal sectors
+            </span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 text-center hover:border-emerald-300 transition-all">
-            <p className="text-3xl font-black text-[#059669]">{stats.resolvedIssues}+</p>
-            <p className="text-xs font-bold text-slate-500 mt-1">Resolved Tickets</p>
-          </div>
+          {/* 6 Metric Cards Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-5">
+            {/* Metric 1: Total Reported */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-sky-300 shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <BarChart3 className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] font-extrabold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100 uppercase">Queue</span>
+              </div>
+              <div>
+                <p className="text-3xl font-black text-slate-900">{stats.totalIssues}+</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">Total Reported</p>
+              </div>
+            </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 text-center hover:border-sky-300 transition-all">
-            <p className="text-3xl font-black text-[#0088cc]">{stats.resolutionRate}%</p>
-            <p className="text-xs font-bold text-slate-500 mt-1">Resolution Rate</p>
-          </div>
+            {/* Metric 2: Resolved Tickets */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-300 shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <CheckCircle2 className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 uppercase">Closed</span>
+              </div>
+              <div>
+                <p className="text-3xl font-black text-emerald-600">{stats.resolvedIssues}+</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">Resolved Tickets</p>
+              </div>
+            </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 text-center hover:border-cyan-300 transition-all">
-            <p className="text-3xl font-black text-[#0284c7]">{stats.avgResolutionTimeDays} Days</p>
-            <p className="text-xs font-bold text-slate-500 mt-1">Avg Turnaround</p>
-          </div>
+            {/* Metric 3: Resolution Rate */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-300 shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase">Rate</span>
+              </div>
+              <div>
+                <p className="text-3xl font-black text-[#0088cc]">{stats.resolutionRate}%</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">Resolution Rate</p>
+              </div>
+            </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 text-center hover:border-teal-300 transition-all">
-            <p className="text-3xl font-black text-[#0d9488]">{stats.activeCitizens}+</p>
-            <p className="text-xs font-bold text-slate-500 mt-1">Active Citizens</p>
-          </div>
+            {/* Metric 4: Avg Turnaround */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-cyan-300 shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Clock className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] font-extrabold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-100 uppercase">Speed</span>
+              </div>
+              <div>
+                <p className="text-3xl font-black text-cyan-600">{stats.avgResolutionTimeDays} Days</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">Avg Turnaround</p>
+              </div>
+            </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 text-center hover:border-purple-300 transition-all">
-            <p className="text-3xl font-black text-purple-600">5</p>
-            <p className="text-xs font-bold text-slate-500 mt-1">City Wards</p>
+            {/* Metric 5: Active Citizens */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-teal-300 shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Smartphone className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] font-extrabold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-100 uppercase">Users</span>
+              </div>
+              <div>
+                <p className="text-3xl font-black text-teal-600">{stats.activeCitizens}+</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">Active Citizens</p>
+              </div>
+            </div>
+
+            {/* Metric 6: City Wards */}
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Building2 className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] font-extrabold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100 uppercase">Sectors</span>
+              </div>
+              <div>
+                <p className="text-3xl font-black text-purple-600">5</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">City Wards</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -300,28 +458,55 @@ const Landing = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {CATEGORIES.map((cat) => {
             const IconComp = categoryIcons[cat.id] || Sparkles;
+            const theme = categoryThemeMap[cat.id] || {
+              badge: "Civic Ticket",
+              bg: "bg-sky-500/10",
+              border: "border-sky-200/80",
+              text: "text-[#0088cc]",
+              hoverBg: "group-hover:bg-[#0088cc]",
+              hoverShadow: "group-hover:shadow-sky-500/20",
+              borderHover: "hover:border-sky-300",
+            };
+
             return (
               <div
                 key={cat.id}
-                className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-[#0088cc]/50 transition-all duration-300 flex flex-col justify-between group"
+                className={`bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl ${theme.borderHover} transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col justify-between group relative overflow-hidden`}
               >
+                {/* Subtle Card Background Accent Tint */}
+                <div className={`absolute top-0 right-0 w-32 h-32 ${theme.bg} rounded-bl-full opacity-40 group-hover:opacity-80 transition-opacity pointer-events-none`} />
+
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-[#e0f2fe] text-[#0088cc] group-hover:bg-[#0088cc] group-hover:text-white flex items-center justify-center font-bold mb-4 transition-all duration-200 shadow-xs">
-                    <IconComp className="w-6 h-6" />
+                  <div className="flex items-center justify-between mb-5">
+                    <div
+                      className={`w-13 h-13 rounded-2xl ${theme.bg} ${theme.border} border ${theme.text} ${theme.hoverBg} ${theme.hoverShadow} group-hover:text-white flex items-center justify-center font-bold transition-all duration-300 shadow-xs group-hover:scale-105`}
+                    >
+                      <IconComp className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-[10px] font-extrabold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider border border-slate-200/60">
+                      {theme.badge}
+                    </span>
                   </div>
-                  <h3 className="font-extrabold text-[#0f172a] text-base mb-2">{cat.name}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed mb-4">{cat.description}</p>
+
+                  <h3 className="font-extrabold text-[#0f172a] text-lg mb-2 group-hover:text-[#0088cc] transition-colors">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-6 font-medium">
+                    {cat.description}
+                  </p>
                 </div>
 
                 <Link
                   to="/report-issue"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0088cc] group-hover:text-[#0077bb] pt-3 border-t border-slate-100 transition-colors"
+                  className="inline-flex items-center justify-between w-full text-xs font-bold text-[#0f172a] group-hover:text-[#0088cc] pt-4 border-t border-slate-100 transition-colors"
                 >
-                  Report in {cat.name}
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <span>Report in {cat.name}</span>
+                  <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 group-hover:bg-[#0088cc] group-hover:text-white flex items-center justify-center transition-all duration-200">
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
                 </Link>
               </div>
             );
@@ -395,75 +580,128 @@ const Landing = () => {
       {/* SECTION 5: SMART CITY FEATURES GRID */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-100 px-3.5 py-1 rounded-full border border-sky-200">
+          <span className="text-xs font-extrabold uppercase tracking-wider text-[#0088cc] bg-[#e0f2fe] px-4 py-1.5 rounded-full border border-[#bae6fd]">
             Innovative Features
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">Built for Citizens & City Managers</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0f172a]">Built for Citizens & City Managers</h2>
           <p className="text-slate-600 text-sm sm:text-base">
             Cutting-edge technology features designed to streamline civic grievance redressal and public accountability.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 space-y-4">
-            <div className="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center font-bold">
-              <MapPin className="w-6 h-6" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 text-lg">Interactive City Map</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              View all active civic complaints across the city in real-time. Filter by department, status, or neighborhood sector.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          {[
+            {
+              title: "Interactive City Map",
+              desc: "View all active civic complaints across the city in real-time. Filter by department, status, or neighborhood sector.",
+              icon: MapPin,
+              tag: "GIS MAP",
+              bg: "bg-sky-500/10",
+              border: "border-sky-200/80",
+              borderHover: "hover:border-sky-300",
+              text: "text-sky-600",
+              hoverBg: "group-hover:bg-sky-500",
+              hoverShadow: "group-hover:shadow-sky-500/20",
+            },
+            {
+              title: "Duplicate Check Engine",
+              desc: "Prevents duplicate submissions by matching nearby reports. Citizens can upvote existing tickets to increase priority.",
+              icon: Search,
+              tag: "SMART AI",
+              bg: "bg-amber-500/10",
+              border: "border-amber-200/80",
+              borderHover: "hover:border-amber-300",
+              text: "text-amber-600",
+              hoverBg: "group-hover:bg-amber-500",
+              hoverShadow: "group-hover:shadow-amber-500/20",
+            },
+            {
+              title: "Resolution Proof Upload",
+              desc: "Municipal teams must upload proof photos before closing tickets, ensuring complete transparency and accountability.",
+              icon: CheckCircle2,
+              tag: "VERIFIED",
+              bg: "bg-emerald-500/10",
+              border: "border-emerald-200/80",
+              borderHover: "hover:border-emerald-300",
+              text: "text-emerald-600",
+              hoverBg: "group-hover:bg-emerald-500",
+              hoverShadow: "group-hover:shadow-emerald-500/20",
+            },
+            {
+              title: "Recharts Analytics",
+              desc: "Comprehensive administrator dashboard featuring category bar charts, status donut charts, and department turnaround rankings.",
+              icon: BarChart3,
+              tag: "BI INSIGHTS",
+              bg: "bg-indigo-500/10",
+              border: "border-indigo-200/80",
+              borderHover: "hover:border-indigo-300",
+              text: "text-indigo-600",
+              hoverBg: "group-hover:bg-indigo-600",
+              hoverShadow: "group-hover:shadow-indigo-500/20",
+            },
+            {
+              title: "Role-Based Protection",
+              desc: "Secure authentication with distinct portals for Citizens and Municipal Administrators, enforced with protected routes.",
+              icon: ShieldCheck,
+              tag: "SECURITY",
+              bg: "bg-teal-500/10",
+              border: "border-teal-200/80",
+              borderHover: "hover:border-teal-300",
+              text: "text-teal-600",
+              hoverBg: "group-hover:bg-teal-600",
+              hoverShadow: "group-hover:shadow-teal-500/20",
+            },
+            {
+              title: "Mobile First Design",
+              desc: "Fully responsive layout designed for mobile phones, tablets, and desktops, allowing easy reporting on the go.",
+              icon: Smartphone,
+              tag: "RESPONSIVE",
+              bg: "bg-purple-500/10",
+              border: "border-purple-200/80",
+              borderHover: "hover:border-purple-300",
+              text: "text-purple-600",
+              hoverBg: "group-hover:bg-purple-600",
+              hoverShadow: "group-hover:shadow-purple-500/20",
+            },
+          ].map((feat) => {
+            const IconComp = feat.icon;
+            return (
+              <div
+                key={feat.title}
+                className={`bg-white p-7 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl ${feat.borderHover} transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col justify-between group relative overflow-hidden`}
+              >
+                {/* Subtle Card Background Accent Tint */}
+                <div className={`absolute top-0 right-0 w-28 h-28 ${feat.bg} rounded-bl-full opacity-40 group-hover:opacity-80 transition-opacity pointer-events-none`} />
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 space-y-4">
-            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center font-bold">
-              <Search className="w-6 h-6" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 text-lg">Duplicate Check Engine</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Prevents duplicate submissions by matching nearby reports. Citizens can upvote existing tickets to increase priority.
-            </p>
-          </div>
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div
+                      className={`w-13 h-13 rounded-2xl ${feat.bg} ${feat.border} border ${feat.text} ${feat.hoverBg} ${feat.hoverShadow} group-hover:text-white flex items-center justify-center font-bold transition-all duration-300 shadow-xs group-hover:scale-105`}
+                    >
+                      <IconComp className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-[10px] font-extrabold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider border border-slate-200/60">
+                      {feat.tag}
+                    </span>
+                  </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 space-y-4">
-            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center font-bold">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 text-lg">Resolution Proof Upload</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Municipal teams must upload proof photos before closing tickets, ensuring complete transparency and accountability.
-            </p>
-          </div>
+                  <h3 className="font-extrabold text-[#0f172a] text-lg mb-2 group-hover:text-[#0088cc] transition-colors">
+                    {feat.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">
+                    {feat.desc}
+                  </p>
+                </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 space-y-4">
-            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center font-bold">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 text-lg">Recharts Analytics</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Comprehensive administrator dashboard featuring category bar charts, status donut charts, and department turnaround rankings.
-            </p>
-          </div>
-
-          <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 space-y-4">
-            <div className="w-12 h-12 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center font-bold">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 text-lg">Role-Based Protection</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Secure authentication with distinct portals for Citizens and Municipal Administrators, enforced with protected routes.
-            </p>
-          </div>
-
-          <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 space-y-4">
-            <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center font-bold">
-              <Smartphone className="w-6 h-6" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 text-lg">Mobile First Design</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Fully responsive layout designed for mobile phones, tablets, and desktops, allowing easy reporting on the go.
-            </p>
-          </div>
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-[#0088cc] pt-4 border-t border-slate-100 transition-colors">
+                  <span>Smart City Tech</span>
+                  <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 group-hover:bg-[#0088cc] group-hover:text-white flex items-center justify-center transition-all duration-200">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -601,19 +839,19 @@ const Landing = () => {
       </section>
 
       {/* SECTION 9: COMPREHENSIVE MULTI-COLUMN FOOTER */}
-      <footer className="bg-[#05070d] text-[#94a3b8] py-16 px-4 sm:px-6 lg:px-8 border-t border-cyan-500/30 shadow-[0_-4px_25px_rgba(6,182,212,0.15)] relative z-10">
+      <footer className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 text-slate-400 py-16 px-4 sm:px-6 lg:px-8 border-t border-slate-800 shadow-2xl relative z-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand Column */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-500 text-slate-950 font-bold flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Building2 className="w-5 h-5 stroke-[2.5]" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#0088cc] text-white font-bold flex items-center justify-center shadow-md shadow-sky-600/20">
+                <Building2 className="w-5 h-5 stroke-[2.2]" />
               </div>
-              <span className="font-extrabold text-white text-xl tracking-tight">
-                Civic<span className="text-cyan-400">Connect</span>
+              <span className="font-extrabold text-white text-xl tracking-tight leading-none">
+                Civic<span className="text-[#0088cc]">Connect</span>
               </span>
             </div>
-            <p className="text-xs text-[#94a3b8] leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed font-medium">
               Smart City Issue Reporting & Resolution Portal enabling transparent citizen-government collaboration.
             </p>
             <div className="pt-1 flex items-center gap-2 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 w-fit">
@@ -625,34 +863,34 @@ const Landing = () => {
           {/* Quick Navigation */}
           <div className="space-y-3">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider">Quick Navigation</h4>
-            <ul className="space-y-2.5 text-xs">
+            <ul className="space-y-2.5 text-xs font-medium">
               <li>
-                <Link to="/" className="text-[#94a3b8] hover:text-cyan-400 transition-colors flex items-center gap-1.5 group">
-                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                <Link to="/" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1.5 group">
+                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-sky-400 group-hover:translate-x-1 transition-all" />
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/city-map" className="text-[#94a3b8] hover:text-cyan-400 transition-colors flex items-center gap-1.5 group">
-                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                <Link to="/city-map" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1.5 group">
+                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-sky-400 group-hover:translate-x-1 transition-all" />
                   Interactive City Map
                 </Link>
               </li>
               <li>
-                <Link to="/report-issue" className="text-[#94a3b8] hover:text-cyan-400 transition-colors flex items-center gap-1.5 group">
-                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                <Link to="/report-issue" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1.5 group">
+                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-sky-400 group-hover:translate-x-1 transition-all" />
                   Report an Issue
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-[#94a3b8] hover:text-cyan-400 transition-colors flex items-center gap-1.5 group">
-                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                <Link to="/login" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1.5 group">
+                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-sky-400 group-hover:translate-x-1 transition-all" />
                   Citizen Portal Login
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-[#94a3b8] hover:text-cyan-400 transition-colors flex items-center gap-1.5 group">
-                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                <Link to="/login" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1.5 group">
+                  <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-sky-400 group-hover:translate-x-1 transition-all" />
                   Administrator Portal Login
                 </Link>
               </li>
@@ -662,11 +900,11 @@ const Landing = () => {
           {/* Municipal Departments */}
           <div className="space-y-3">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider">Municipal Departments</h4>
-            <ul className="space-y-2.5 text-xs text-[#94a3b8]">
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Roads & Infrastructure</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> Sanitation & Waste Management</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span> Water Supply & Drainage</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Electricity & Street Lighting</li>
+            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Roads & Infrastructure</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Sanitation & Waste Management</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Water Supply & Drainage</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Electricity & Street Lighting</li>
               <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span> Parks & Public Property</li>
             </ul>
           </div>
@@ -674,18 +912,18 @@ const Landing = () => {
           {/* Emergency Helplines */}
           <div className="space-y-3">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider">Emergency Helplines</h4>
-            <ul className="space-y-2.5 text-xs text-[#94a3b8]">
-              <li className="flex items-center gap-3 bg-white/[0.03] p-3 rounded-2xl border border-white/[0.08] hover:border-cyan-500/30 transition-colors">
-                <PhoneCall className="w-4 h-4 text-cyan-400 shrink-0" />
+            <ul className="space-y-2.5 text-xs text-slate-400">
+              <li className="flex items-center gap-3 bg-slate-800/60 p-3 rounded-2xl border border-slate-700/60 hover:border-sky-500/40 transition-colors">
+                <PhoneCall className="w-4 h-4 text-sky-400 shrink-0" />
                 <div>
-                  <p className="text-[10px] text-[#94a3b8] font-medium">Toll-Free Helpline</p>
+                  <p className="text-[10px] text-slate-400 font-medium">Toll-Free Helpline</p>
                   <p className="font-bold text-white">1800-CIVIC-CONNECT</p>
                 </div>
               </li>
-              <li className="flex items-center gap-3 bg-white/[0.03] p-3 rounded-2xl border border-white/[0.08] hover:border-cyan-500/30 transition-colors">
-                <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
+              <li className="flex items-center gap-3 bg-slate-800/60 p-3 rounded-2xl border border-slate-700/60 hover:border-sky-500/40 transition-colors">
+                <Mail className="w-4 h-4 text-sky-400 shrink-0" />
                 <div>
-                  <p className="text-[10px] text-[#94a3b8] font-medium">Support Desk</p>
+                  <p className="text-[10px] text-slate-400 font-medium">Support Desk</p>
                   <p className="font-bold text-white">support@civicconnect.gov.in</p>
                 </div>
               </li>
@@ -693,12 +931,12 @@ const Landing = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-[#94a3b8] gap-4">
+        <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4 font-medium">
           <p>&copy; 2026 CivicConnect Smart City Platform. All rights reserved.</p>
-          <div className="flex gap-6 font-medium">
-            <a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-cyan-400 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-cyan-400 transition-colors">Accessibility</a>
+          <div className="flex gap-6">
+            <Link to="/privacy" className="hover:text-sky-400 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-sky-400 transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-sky-400 transition-colors">Accessibility</Link>
           </div>
         </div>
       </footer>
