@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import React, { useState, useEffect, useCallback } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { MapPin, Navigation, Compass, AlertCircle } from "lucide-react";
+import { Navigation, AlertCircle } from "lucide-react";
 import IssueStatusBadge from "./IssueStatusBadge";
 import { getImageUrl } from "../utils/helpers";
 
@@ -13,7 +13,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-// Custom colored pin creator
+// Custom colored pin creator for issues
 const createCustomIcon = (status) => {
   let color = "#3b82f6"; // Default blue
   if (status === "Resolved" || status === "Verified" || status === "Closed") color = "#10b981"; // Emerald
@@ -31,6 +31,29 @@ const createCustomIcon = (status) => {
   });
 };
 
+// Animated Live Location User Marker
+const createLiveUserIcon = () => {
+  const html = `
+    <div style="position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+      <div style="position: absolute; width: 32px; height: 32px; border-radius: 50%; background: rgba(14, 165, 233, 0.4); animation: pulse-ring 2s infinite ease-out;"></div>
+      <div style="position: relative; width: 18px; height: 18px; border-radius: 50%; background: #0284c7; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(2, 132, 199, 0.6);"></div>
+    </div>
+    <style>
+      @keyframes pulse-ring {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(2.2); opacity: 0; }
+      }
+    </style>
+  `;
+  return L.divIcon({
+    html,
+    className: "custom-live-user-marker",
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
+  });
+};
+
 // Component to handle map clicks for pin placement
 const LocationPicker = ({ onLocationSelect }) => {
   useMapEvents({
@@ -45,87 +68,169 @@ const LocationPicker = ({ onLocationSelect }) => {
 };
 
 // Component to re-center map dynamically
-const RecenterMap = ({ center }) => {
+const RecenterMap = ({ center, zoom = 14 }) => {
   const map = useMap();
   useEffect(() => {
-    if (center) {
-      map.setView(center, 15);
+    if (center && center[0] && center[1]) {
+      map.setView(center, zoom, { animate: true });
     }
-  }, [center, map]);
+  }, [center, zoom, map]);
   return null;
 };
 
 const MapView = ({
-  center = [19.076, 72.8777], // Default Mumbai coords
-  zoom = 13,
+  center = null,
+  zoom = 14,
   selectable = false,
   selectedLocation = null,
   onLocationSelect = null,
   issues = [],
+  showLiveUserLocation = true,
   className = "h-80 w-full",
 }) => {
-  const [currentPos, setCurrentPos] = useState(selectedLocation || { latitude: center[0], longitude: center[1] });
+  const [liveUserPos, setLiveUserPos] = useState(null);
+  const [accuracy, setAccuracy] = useState(null);
   const [gpsError, setGpsError] = useState("");
+  const [isLocating, setIsLocating] = useState(true);
+  const [manualCenter, setManualCenter] = useState(null);
 
-  const handleDetectGPS = () => {
-    if (navigator.geolocation) {
+  // Initialize live user geolocation watching
+  useEffect(() => {
+    if (!showLiveUserLocation && !selectable) return;
+
+    if ("geolocation" in navigator) {
+      setIsLocating(true);
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const loc = {
+            latitude: parseFloat(pos.coords.latitude.toFixed(6)),
+            longitude: parseFloat(pos.coords.longitude.toFixed(6)),
+          };
+          setLiveUserPos(loc);
+          setAccuracy(pos.coords.accuracy || 30);
+          setGpsError("");
+          setIsLocating(false);
+        },
+        (err) => {
+          console.warn("Geolocation warning:", err.message);
+          setGpsError("Live GPS unavailable. Showing city view.");
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
+
+      return () => navigator.geolocation.clearWatch(watchId);
+    } else {
+      setGpsError("Geolocation is not supported by your browser.");
+      setIsLocating(false);
+    }
+  }, [showLiveUserLocation, selectable]);
+
+  const handleRecenterToLiveGPS = useCallback(() => {
+    if (liveUserPos) {
+      setManualCenter([liveUserPos.latitude, liveUserPos.longitude]);
+    } else if ("geolocation" in navigator) {
+      setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = {
             latitude: parseFloat(pos.coords.latitude.toFixed(6)),
             longitude: parseFloat(pos.coords.longitude.toFixed(6)),
           };
-          setCurrentPos(loc);
-          setGpsError("");
+          setLiveUserPos(loc);
+          setManualCenter([loc.latitude, loc.longitude]);
+          setIsLocating(false);
           if (onLocationSelect) onLocationSelect(loc);
         },
-        (err) => {
-          setGpsError("GPS permission denied or unavailable. Please click on the map manually.");
+        () => {
+          setGpsError("Could not retrieve GPS location.");
+          setIsLocating(false);
         }
       );
-    } else {
-      setGpsError("Geolocation is not supported by your browser.");
     }
-  };
+  }, [liveUserPos, onLocationSelect]);
 
-  const activeCenter = [
-    selectedLocation?.latitude || currentPos.latitude || center[0],
-    selectedLocation?.longitude || currentPos.longitude || center[1],
-  ];
+  // Determine effective map center
+  const defaultFallbackCenter = [19.076, 72.8777]; // Mumbai
+  const effectiveCenter =
+    manualCenter ||
+    (selectedLocation?.latitude && selectedLocation?.longitude
+      ? [selectedLocation.latitude, selectedLocation.longitude]
+      : center && center[0] && center[1]
+      ? center
+      : liveUserPos
+      ? [liveUserPos.latitude, liveUserPos.longitude]
+      : defaultFallbackCenter);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
-      {selectable && (
-        <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={handleDetectGPS}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-blue-600 text-xs font-semibold rounded-xl shadow-md border border-slate-200 transition"
-          >
-            <Navigation className="w-4 h-4 fill-current" />
-            <span>Use My GPS Location</span>
-          </button>
-        </div>
-      )}
+    <div className="relative w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+      {/* Live Location Controls Overlay */}
+      <div className="absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2">
+        <button
+          type="button"
+          onClick={handleRecenterToLiveGPS}
+          disabled={isLocating}
+          className="flex items-center gap-2 px-3.5 py-2 bg-white/95 backdrop-blur-md hover:bg-slate-50 text-sky-700 text-xs font-bold rounded-xl shadow-lg border border-slate-200 transition-all transform hover:scale-[1.03] cursor-pointer"
+          title="Center map on my live position"
+        >
+          <Navigation className={`w-4 h-4 fill-sky-600 ${isLocating ? "animate-spin text-sky-600" : "text-sky-600"}`} />
+          <span>{isLocating ? "Locating..." : "My Live Location"}</span>
+        </button>
+
+        {liveUserPos && (
+          <div className="px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow flex items-center gap-1.5 border border-slate-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Live GPS: {liveUserPos.latitude}, {liveUserPos.longitude}</span>
+          </div>
+        )}
+      </div>
 
       {gpsError && (
-        <div className="absolute bottom-3 left-3 right-3 z-[1000] bg-amber-50 border border-amber-200 text-amber-800 text-xs p-2.5 rounded-xl flex items-center gap-2">
+        <div className="absolute bottom-3 left-3 right-3 z-[1000] bg-amber-50/95 backdrop-blur-sm border border-amber-200 text-amber-800 text-xs p-2.5 rounded-xl flex items-center gap-2 shadow-md">
           <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
           <span>{gpsError}</span>
         </div>
       )}
 
-      <MapContainer center={activeCenter} zoom={zoom} scrollWheelZoom={true} className={className}>
+      <MapContainer center={effectiveCenter} zoom={zoom} scrollWheelZoom={true} className={className}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <RecenterMap center={activeCenter} />
+        <RecenterMap center={effectiveCenter} zoom={zoom} />
 
         {selectable && <LocationPicker onLocationSelect={onLocationSelect} />}
 
-        {/* Selected location pin */}
+        {/* Live User Location Marker */}
+        {showLiveUserLocation && liveUserPos && (
+          <>
+            <Marker position={[liveUserPos.latitude, liveUserPos.longitude]} icon={createLiveUserIcon()}>
+              <Popup>
+                <div className="p-1 text-center">
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full text-[10px] font-extrabold mb-1">
+                    <span className="w-2 h-2 rounded-full bg-sky-600 animate-ping"></span>
+                    Your Live Position
+                  </div>
+                  <p className="font-extrabold text-xs text-slate-900">You Are Here</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    Lat: {liveUserPos.latitude}, Lng: {liveUserPos.longitude}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+
+            {accuracy && (
+              <Circle
+                center={[liveUserPos.latitude, liveUserPos.longitude]}
+                radius={accuracy}
+                pathOptions={{ color: "#0284c7", fillColor: "#38bdf8", fillOpacity: 0.15, weight: 1.5 }}
+              />
+            )}
+          </>
+        )}
+
+        {/* Selected location pin (for location picking forms) */}
         {selectable && selectedLocation && selectedLocation.latitude && selectedLocation.longitude && (
           <Marker
             position={[selectedLocation.latitude, selectedLocation.longitude]}
@@ -133,7 +238,7 @@ const MapView = ({
           >
             <Popup>
               <div className="p-1">
-                <p className="font-bold text-xs text-slate-900">Selected Location</p>
+                <p className="font-bold text-xs text-slate-900">Selected Issue Location</p>
                 <p className="text-[11px] text-slate-600 mt-1">
                   Lat: {selectedLocation.latitude}, Lng: {selectedLocation.longitude}
                 </p>
@@ -186,3 +291,4 @@ const MapView = ({
 };
 
 export default MapView;
+

@@ -88,3 +88,35 @@ export const getMe = async (req, res) => {
     return errorResponse(res, 500, error.message);
   }
 };
+
+// @desc    Update current user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(res, 404, "User not found");
+    }
+
+    if (req.body.name) user.name = req.body.name;
+    if (req.body.email) user.email = req.body.email;
+    if (req.body.avatar !== undefined) user.avatar = req.body.avatar;
+    if (req.body.password) user.password = req.body.password;
+
+    const updatedUser = await user.save();
+
+    return successResponse(res, 200, "Profile updated successfully", {
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      avatar: updatedUser.avatar,
+      department: updatedUser.department,
+    });
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+

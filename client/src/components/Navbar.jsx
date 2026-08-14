@@ -100,7 +100,7 @@ const Navbar = () => {
               }`}
             >
               <MapPin className="w-4 h-4 text-[#0088cc]" />
-              City Map
+              Live Location Map
             </Link>
 
             {isAuthenticated && (
@@ -278,7 +278,7 @@ const Navbar = () => {
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
           >
-            City Map
+            Live Location Map
           </Link>
 
           {isAuthenticated ? (
