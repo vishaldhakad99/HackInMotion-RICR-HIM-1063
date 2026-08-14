@@ -20,7 +20,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/issues", issueRoutes);
@@ -131,7 +131,7 @@ const runTests = async () => {
       comment: "I saw this bench today, it is indeed broken.",
     }, userToken);
     await testReq("Verify Photo Issue", "POST", `/api/issues/${createdIssueId}/verify-photo`, {
-      photoUrl: "/uploads/sample-bench.jpg",
+      photoUrl: "https://res.cloudinary.com/demo/image/upload/v1/sample-bench.jpg",
       comment: "Attached photo of bench.",
     }, userToken);
   }
@@ -146,7 +146,7 @@ const runTests = async () => {
     }, adminToken);
     await testReq("Submit Resolution (Admin)", "POST", `/api/admin/issues/${createdIssueId}/resolution`, {
       details: "Bench has been repaired by municipal team.",
-      proofPhotos: ["/uploads/repaired-bench.jpg"],
+      proofPhotos: ["https://res.cloudinary.com/demo/image/upload/v1/repaired-bench.jpg"],
     }, adminToken);
   }
 
