@@ -13,6 +13,7 @@ const ErrorMessage = ({ message = "Something went wrong. Please try again.", onR
           onClick={onRetry}
           className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition"
         >
+          
           Try Again
         </button>
       )}
