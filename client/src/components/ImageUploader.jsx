@@ -97,6 +97,7 @@ const ImageUploader = ({ onImageUploaded, images = [], maxFiles = 3 }) => {
                 onClick={() => handleRemove(idx)}
                 className="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded-full opacity-90 hover:opacity-100 shadow transition"
               >
+                
                 <X className="w-4 h-4" />
               </button>
             </div>
