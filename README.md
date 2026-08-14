@@ -113,7 +113,6 @@ Seed initial municipal demo data (departments, admin account, sample citizen tic
 ```bash
 npm run seed
 ```
-
 Start the backend API server:
 ```bash
 npm run dev
