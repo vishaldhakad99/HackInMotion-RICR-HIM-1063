@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { Navigation, AlertCircle } from "lucide-react";
+import { Navigation, AlertCircle, Layers, Map as MapIcon, Globe, Image } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import IssueStatusBadge from "./IssueStatusBadge";
 import { getImageUrl } from "../utils/helpers";
+import { reverseGeocode } from "../services/mapServices";
 
-// Self-contained inline SVG Data URI for default Leaflet marker (No external CDN image dependencies)
+// Inline SVG Data URIs for default Leaflet pins (100% asset independence)
 const defaultPinSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230284c7" width="32" height="32" stroke="%23ffffff" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -69,46 +70,123 @@ const createSearchLocationIcon = () => {
   });
 };
 
-// Helper component to fix gray tiles by invalidating size on mount
-const InvalidateMapSize = () => {
+// High-Reliability Map Tile Providers Configuration
+const MAP_TILE_PROVIDERS = {
+  standard: {
+    id: "standard",
+    name: "OpenStreetMap",
+    icon: Globe,
+    url: import.meta.env.VITE_MAP_TILE_URL || "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    subdomains: "",
+  },
+  voyager: {
+    id: "voyager",
+    name: "CARTO Clean",
+    icon: MapIcon,
+    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: "abcd",
+  },
+  topo: {
+    id: "topo",
+    name: "Esri Topo",
+    icon: Layers,
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community",
+    subdomains: "",
+  },
+  satellite: {
+    id: "satellite",
+    name: "Esri Satellite",
+    icon: Image,
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    subdomains: "",
+  },
+};
+
+// Helper component to continuously monitor container size and invalidate Leaflet map size
+const MapResizeObserver = ({ containerRef }) => {
   const map = useMap();
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [map]);
+    if (!map) return;
+
+    // Immediate size check stages
+    const timer1 = setTimeout(() => map.invalidateSize(), 100);
+    const timer2 = setTimeout(() => map.invalidateSize(), 350);
+    const timer3 = setTimeout(() => map.invalidateSize(), 700);
+
+    let observer;
+    if (containerRef && containerRef.current && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => {
+        map.invalidateSize();
+      });
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      if (observer) observer.disconnect();
+    };
+  }, [map, containerRef]);
+
   return null;
 };
 
-// Component to handle map clicks for pin placement
+// Component to handle map clicks for pin placement with automatic reverse geocoding
 const LocationPicker = ({ onLocationSelect }) => {
   useMapEvents({
-    click(e) {
+    async click(e) {
+      const latitude = parseFloat(e.latlng.lat.toFixed(6));
+      const longitude = parseFloat(e.latlng.lng.toFixed(6));
+
+      let address = `Lat: ${latitude}, Lng: ${longitude}`;
+      try {
+        const fetchedAddress = await reverseGeocode(latitude, longitude);
+        if (fetchedAddress) address = fetchedAddress;
+      } catch (err) {
+        console.warn("Reverse geocode on click failed:", err);
+      }
+
       onLocationSelect({
-        latitude: parseFloat(e.latlng.lat.toFixed(6)),
-        longitude: parseFloat(e.latlng.lng.toFixed(6)),
+        latitude,
+        longitude,
+        address,
       });
     },
   });
   return null;
 };
 
-// Component to re-center map dynamically with flyTo
+// Component to re-center map dynamically with smooth flyTo animation
 const RecenterMap = ({ center, zoom = 14 }) => {
   const map = useMap();
   const prevCenterRef = useRef(null);
 
   useEffect(() => {
-    if (center && center[0] && center[1]) {
-      const [lat, lng] = center;
-      if (!prevCenterRef.current || prevCenterRef.current[0] !== lat || prevCenterRef.current[1] !== lng) {
-        prevCenterRef.current = [lat, lng];
-        map.flyTo([lat, lng], zoom, { animate: true, duration: 1.2 });
+    if (Array.isArray(center) && center.length === 2) {
+      const lat = parseFloat(center[0]);
+      const lng = parseFloat(center[1]);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        if (!prevCenterRef.current || prevCenterRef.current[0] !== lat || prevCenterRef.current[1] !== lng) {
+          prevCenterRef.current = [lat, lng];
+          map.flyTo([lat, lng], zoom, { animate: true, duration: 1.2 });
+        }
       }
     }
   }, [center, zoom, map]);
   return null;
+};
+
+// Safe float parser helper
+const safeFloat = (val) => {
+  if (val === null || val === undefined) return null;
+  const num = parseFloat(val);
+  return isNaN(num) ? null : num;
 };
 
 const MapView = ({
@@ -122,6 +200,10 @@ const MapView = ({
   showLiveUserLocation = true,
   className = "h-80 w-full",
 }) => {
+  const containerRef = useRef(null);
+  const [activeProvider, setActiveProvider] = useState(MAP_TILE_PROVIDERS.standard);
+  const [showLayerMenu, setShowLayerMenu] = useState(false);
+
   const [liveUserPos, setLiveUserPos] = useState(null);
   const [accuracy, setAccuracy] = useState(null);
   const [gpsError, setGpsError] = useState("");
@@ -160,13 +242,19 @@ const MapView = ({
     }
   }, [showLiveUserLocation, selectable]);
 
-  const handleRecenterToLiveGPS = useCallback(() => {
+  const handleRecenterToLiveGPS = useCallback(async () => {
     if (liveUserPos) {
       setManualCenter([liveUserPos.latitude, liveUserPos.longitude]);
+      if (onLocationSelect) {
+        let addr = `Lat: ${liveUserPos.latitude}, Lng: ${liveUserPos.longitude}`;
+        const fetched = await reverseGeocode(liveUserPos.latitude, liveUserPos.longitude);
+        if (fetched) addr = fetched;
+        onLocationSelect({ ...liveUserPos, address: addr });
+      }
     } else if ("geolocation" in navigator) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
           const loc = {
             latitude: parseFloat(pos.coords.latitude.toFixed(6)),
             longitude: parseFloat(pos.coords.longitude.toFixed(6)),
@@ -174,7 +262,12 @@ const MapView = ({
           setLiveUserPos(loc);
           setManualCenter([loc.latitude, loc.longitude]);
           setIsLocating(false);
-          if (onLocationSelect) onLocationSelect(loc);
+          if (onLocationSelect) {
+            let addr = `Lat: ${loc.latitude}, Lng: ${loc.longitude}`;
+            const fetched = await reverseGeocode(loc.latitude, loc.longitude);
+            if (fetched) addr = fetched;
+            onLocationSelect({ ...loc, address: addr });
+          }
         },
         () => {
           setGpsError("Could not retrieve GPS location.");
@@ -184,26 +277,47 @@ const MapView = ({
     }
   }, [liveUserPos, onLocationSelect]);
 
-  // Determine effective map center
-  const defaultFallbackCenter = [19.076, 72.8777]; // Mumbai
-  const effectiveCenter =
-    manualCenter ||
-    (searchedLocation?.latitude && searchedLocation?.longitude
-      ? [searchedLocation.latitude, searchedLocation.longitude]
-      : selectedLocation?.latitude && selectedLocation?.longitude
-      ? [selectedLocation.latitude, selectedLocation.longitude]
-      : center && center[0] && center[1]
-      ? center
-      : liveUserPos
-      ? [liveUserPos.latitude, liveUserPos.longitude]
-      : defaultFallbackCenter);
+  // Determine bulletproof numeric map center
+  const searchedLat = safeFloat(searchedLocation?.latitude);
+  const searchedLng = safeFloat(searchedLocation?.longitude);
 
+  const selectedLat = safeFloat(selectedLocation?.latitude);
+  const selectedLng = safeFloat(selectedLocation?.longitude);
+
+  const propCenterLat = safeFloat(center?.[0]);
+  const propCenterLng = safeFloat(center?.[1]);
+
+  const liveLat = safeFloat(liveUserPos?.latitude);
+  const liveLng = safeFloat(liveUserPos?.longitude);
+
+  const effectiveLat =
+    safeFloat(manualCenter?.[0]) ??
+    searchedLat ??
+    selectedLat ??
+    propCenterLat ??
+    liveLat ??
+    19.076; // Mumbai default fallback
+
+  const effectiveLng =
+    safeFloat(manualCenter?.[1]) ??
+    searchedLng ??
+    selectedLng ??
+    propCenterLng ??
+    liveLng ??
+    72.8777;
+
+  const effectiveCenter = [effectiveLat, effectiveLng];
   const effectiveZoom = searchedLocation ? 13 : zoom;
 
   return (
-    <div className="relative w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
-      {/* Live Location Controls Overlay */}
+    <div
+      ref={containerRef}
+      className="relative w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-slate-100"
+      style={{ minHeight: "350px", height: "100%", width: "100%" }}
+    >
+      {/* Top Controls Overlay */}
       <div className="absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2">
+        {/* Live GPS Re-center Button */}
         <button
           type="button"
           onClick={handleRecenterToLiveGPS}
@@ -214,6 +328,47 @@ const MapView = ({
           <Navigation className={`w-4 h-4 fill-sky-600 ${isLocating ? "animate-spin text-sky-600" : "text-sky-600"}`} />
           <span>{isLocating ? "Locating..." : "My Live Location"}</span>
         </button>
+
+        {/* Tile Layer Selector Menu */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowLayerMenu(!showLayerMenu)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-md hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-md border border-slate-200 cursor-pointer"
+            title="Change Map Style"
+          >
+            <Layers className="w-3.5 h-3.5 text-indigo-600" />
+            <span>{activeProvider.name}</span>
+          </button>
+
+          {showLayerMenu && (
+            <div className="absolute right-0 mt-1 w-44 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 py-1.5 z-[1005] animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="px-3 py-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                Select Map View
+              </div>
+              {Object.values(MAP_TILE_PROVIDERS).map((provider) => {
+                const IconComp = provider.icon;
+                const isSelected = activeProvider.id === provider.id;
+                return (
+                  <button
+                    key={provider.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveProvider(provider);
+                      setShowLayerMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-medium flex items-center gap-2 hover:bg-indigo-50/70 transition ${
+                      isSelected ? "text-indigo-600 font-bold bg-indigo-50/50" : "text-slate-700"
+                    }`}
+                  >
+                    <IconComp className={`w-3.5 h-3.5 ${isSelected ? "text-indigo-600" : "text-slate-400"}`} />
+                    <span>{provider.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {liveUserPos && (
           <div className="px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow flex items-center gap-1.5 border border-slate-700">
@@ -230,11 +385,18 @@ const MapView = ({
         </div>
       )}
 
-      <MapContainer center={effectiveCenter} zoom={effectiveZoom} scrollWheelZoom={true} className={className}>
+      <MapContainer
+        center={effectiveCenter}
+        zoom={effectiveZoom}
+        scrollWheelZoom={true}
+        className={className}
+        style={{ height: "100%", width: "100%", minHeight: "350px", zIndex: 1 }}
+      >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
+          key={activeProvider.id}
+          attribution={activeProvider.attribution}
+          url={activeProvider.url}
+          subdomains={activeProvider.subdomains || "abc"}
           maxZoom={19}
           eventHandlers={{
             tileerror: (e) => {
@@ -247,15 +409,15 @@ const MapView = ({
           }}
         />
 
-        <InvalidateMapSize />
+        <MapResizeObserver containerRef={containerRef} />
         <RecenterMap center={effectiveCenter} zoom={effectiveZoom} />
 
         {selectable && <LocationPicker onLocationSelect={onLocationSelect} />}
 
         {/* Live User Location Marker */}
-        {showLiveUserLocation && liveUserPos && (
+        {showLiveUserLocation && liveUserPos && liveLat !== null && liveLng !== null && (
           <>
-            <Marker position={[liveUserPos.latitude, liveUserPos.longitude]} icon={createLiveUserIcon()}>
+            <Marker position={[liveLat, liveLng]} icon={createLiveUserIcon()}>
               <Popup>
                 <div className="p-1 text-center">
                   <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full text-[10px] font-extrabold mb-1">
@@ -264,7 +426,7 @@ const MapView = ({
                   </div>
                   <p className="font-extrabold text-xs text-slate-900">You Are Here</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">
-                    Lat: {liveUserPos.latitude}, Lng: {liveUserPos.longitude}
+                    Lat: {liveLat}, Lng: {liveLng}
                   </p>
                 </div>
               </Popup>
@@ -272,7 +434,7 @@ const MapView = ({
 
             {accuracy && (
               <Circle
-                center={[liveUserPos.latitude, liveUserPos.longitude]}
+                center={[liveLat, liveLng]}
                 radius={accuracy}
                 pathOptions={{ color: "#0284c7", fillColor: "#38bdf8", fillOpacity: 0.15, weight: 1.5 }}
               />
@@ -281,19 +443,18 @@ const MapView = ({
         )}
 
         {/* Searched City Location Marker */}
-        {searchedLocation && searchedLocation.latitude && searchedLocation.longitude && (
-          <Marker
-            position={[searchedLocation.latitude, searchedLocation.longitude]}
-            icon={createSearchLocationIcon()}
-          >
+        {searchedLat !== null && searchedLng !== null && (
+          <Marker position={[searchedLat, searchedLng]} icon={createSearchLocationIcon()}>
             <Popup>
               <div className="p-1 max-w-xs text-center">
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full text-[10px] font-extrabold mb-1">
                   Searched Location
                 </div>
-                <p className="font-extrabold text-xs text-slate-900 line-clamp-2">{searchedLocation.address || "Searched Position"}</p>
+                <p className="font-extrabold text-xs text-slate-900 line-clamp-2">
+                  {searchedLocation.address || "Searched Position"}
+                </p>
                 <p className="text-[10px] text-slate-500 mt-0.5">
-                  Lat: {searchedLocation.latitude}, Lng: {searchedLocation.longitude}
+                  Lat: {searchedLat}, Lng: {searchedLng}
                 </p>
               </div>
             </Popup>
@@ -301,16 +462,16 @@ const MapView = ({
         )}
 
         {/* Selected location pin (for location picking forms) */}
-        {selectable && selectedLocation && selectedLocation.latitude && selectedLocation.longitude && (
-          <Marker
-            position={[selectedLocation.latitude, selectedLocation.longitude]}
-            icon={createCustomIcon("Selected")}
-          >
+        {selectable && selectedLat !== null && selectedLng !== null && (
+          <Marker position={[selectedLat, selectedLng]} icon={createCustomIcon("Selected")}>
             <Popup>
               <div className="p-1">
                 <p className="font-bold text-xs text-slate-900">Selected Issue Location</p>
-                <p className="text-[11px] text-slate-600 mt-1">
-                  Lat: {selectedLocation.latitude}, Lng: {selectedLocation.longitude}
+                {selectedLocation.address && (
+                  <p className="text-xs text-slate-700 font-medium mt-0.5">{selectedLocation.address}</p>
+                )}
+                <p className="text-[11px] text-slate-500 font-mono mt-1">
+                  Lat: {selectedLat}, Lng: {selectedLng}
                 </p>
               </div>
             </Popup>
@@ -320,11 +481,13 @@ const MapView = ({
         {/* Display issues markers */}
         {!selectable &&
           issues.map((issue) => {
-            if (!issue.location?.latitude || !issue.location?.longitude) return null;
+            const issueLat = safeFloat(issue?.location?.latitude);
+            const issueLng = safeFloat(issue?.location?.longitude);
+            if (issueLat === null || issueLng === null) return null;
             return (
               <Marker
-                key={issue._id}
-                position={[issue.location.latitude, issue.location.longitude]}
+                key={issue._id || `${issueLat}-${issueLng}`}
+                position={[issueLat, issueLng]}
                 icon={createCustomIcon(issue.status)}
               >
                 <Popup className="custom-issue-popup">
@@ -361,5 +524,3 @@ const MapView = ({
 };
 
 export default MapView;
-
-

@@ -90,14 +90,7 @@ HackInMotion-RICR-HIM-1063/
 
 ---
 
-<<<<<<< HEAD
-
-
-
-## 🚀 Quick Start & Local Setup
-=======
 ## 🚀 Quickstart & Installation
->>>>>>> feature/DB04
 
 ### Prerequisites
 - **Node.js**: `v18.0.0` or higher
@@ -149,15 +142,7 @@ Visit **`http://localhost:5173`** in your web browser.
 
 ---
 
-<<<<<<< HEAD
-
-
-
-
-## 🔑 Demo Test Credentials
-=======
 ## 🧪 Testing & Code Quality
->>>>>>> feature/DB04
 
 ### Client Linter Verification
 ```bash
@@ -179,16 +164,7 @@ npm run build
 
 ---
 
-<<<<<<< HEAD
-
-
-
-
-
-## 📡 REST API Reference
-=======
 ## 👥 Development Team
->>>>>>> feature/DB04
 
 - **Vishal Dhakad** (Team Lead & Full-Stack Developer)
 - **Dikesh Choure** (Frontend & UI/UX Developer)
@@ -196,9 +172,6 @@ npm run build
 
 ---
 
-<<<<<<< HEAD
-=======
 ## 📄 License
 
 This project is licensed under the [ISC License](LICENSE).
->>>>>>> feature/DB04

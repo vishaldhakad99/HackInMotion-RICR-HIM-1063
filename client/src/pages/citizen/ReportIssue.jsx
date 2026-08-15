@@ -76,10 +76,11 @@ const ReportIssue = () => {
         ...prev.location,
         latitude: coords.latitude,
         longitude: coords.longitude,
-        address: prev.location.address || `Pinned Location (${coords.latitude}, ${coords.longitude})`,
+        address: coords.address || prev.location.address || `Pinned Location (${coords.latitude}, ${coords.longitude})`,
       },
     }));
   };
+
 
   const handleNextStep = async () => {
     if (currentStep === 1 && !formData.category) {
