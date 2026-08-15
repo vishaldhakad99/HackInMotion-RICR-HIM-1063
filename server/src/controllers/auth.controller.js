@@ -8,7 +8,7 @@ import crypto from "crypto";
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return errorResponse(res, 400, "Please provide name, email, and password");
@@ -23,7 +23,7 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password,
-      role: role || "user",
+      role: "user", // Public registration is strictly scoped to 'user' role
     });
 
     if (user) {
