@@ -1,33 +1,45 @@
-# CivicConnect — Smart City Civic Issue Reporting & Resolution Portal
+# CivicConnect — Smart City Issue Reporting & Resolution Platform 🏙️
 
-![CivicConnect Header](https://img.shields.io/badge/CivicConnect-Smart%20Governance%20Platform-blue?style=for-the-badge&logo=building)
-![React](https://img.shields.io/badge/React-19.2-blue?style=for-the-badge&logo=react)
-![NodeJS](https://img.shields.io/badge/Node.js-Express%205-green?style=for-the-badge&logo=node.js)
-![MongoDB](https://img.shields.io/badge/Database-MongoDB-emerald?style=for-the-badge&logo=mongodb)
-![TailwindCSS](https://img.shields.io/badge/Styling-TailwindCSS%20v4-38bdf8?style=for-the-badge&logo=tailwindcss)
+[![Tech Stack](https://img.shields.io/badge/Stack-MERN-blue.svg)](https://react.dev)
+[![Security](https://img.shields.io/badge/Security-Helmet%20%7C%20RateLimit%20%7C%20NoSQL%20Sanitized-emerald.svg)](#security--production-hardening)
+[![License](https://img.shields.io/badge/License-ISC-green.svg)](LICENSE)
 
-**CivicConnect** is a state-of-the-art full-stack web application designed to streamline civic grievance redressal and municipal operations. It connects citizens directly with municipal departments (Roads & Infrastructure, Sanitation, Water Supply, Electricity, Public Property, etc.) for transparent issue reporting, real-time map pin-pointing, automated routing, duplicate complaint detection, photo evidence verification, and administrative analytics.
+**CivicConnect** is an enterprise-grade, full-stack Smart City Civic Tech platform designed for citizens to report civic infrastructure issues (potholes, streetlights, garbage, water leaks, public safety hazards) with real-time GPS geolocation, interactive live maps, evidence photo uploads, and automated department routing. Administrators gain real-time analytics, automated issue assignment, status management, and audit timeline tracking.
 
 ---
 
 ## 🌟 Key Features
 
 ### 👤 Citizen Portal
-- **Guided 5-Step Issue Reporting**:
-  1. **Category Selection**: Choose from color-coded municipal categories with domain icons.
-  2. **Interactive Map Pinning**: Use Leaflet GPS maps to set exact latitude/longitude coordinates.
-  3. **Photo Evidence Upload**: Attach clear site images to assist municipal inspection crews.
-  4. **Urgency & Details**: Set priority level (*Low*, *Medium*, *High*, *Critical*) with title and description.
-  5. **Duplicate Alert Check**: Pre-submission scan alerts users if a nearby ticket already exists, allowing them to upvote instead of creating duplicates.
-- **Interactive City Map**: View all reported civic complaints across city wards with status markers (*Reported*, *In Progress*, *Resolved*, *Reopened*).
-- **Citizen Dashboard & Issue Tracker**: Real-time status updates, department assignments, ticket timeline history, and resolution proof photos uploaded by repair crews.
+- **Interactive Live Location Map**: Real-time GPS location tracking powered by Leaflet and CartoDB Voyager tiles with user position markers, accuracy circles, and city autocomplete search suggestions.
+- **Multi-Step Issue Reporting**: 5-step intuitive wizard including category selection, live map location picking, evidence photo capture/upload, priority tags, and duplicate issue detection.
+- **Real-Time Issue Lifecycle & Upvoting**: Track issue statuses (`Reported`, `Acknowledged`, `In Progress`, `Resolved`, `Verified`, `Closed`, `Reopened`, `Rejected`) with community upvoting and comment discussions.
+- **Account & Profile Management**: Profile avatar updates, role badges, and a complete secure **Forgot Password** & **Reset Password** workflow.
 
-### 🏢 Municipal Administrator Portal
-- **Centralized Operations Dashboard**: High-level metrics showing Total Reports, Resolved Tickets, Resolution Rate, and Average Turnaround Days.
-- **Department Management Queue**: Automated ticket routing to specialized municipal departments (Roads, Sanitation, Water, Electricity, Parks).
-- **Recharts Data Analytics**: Interactive bar charts (Category Distribution), donut charts (Status Breakdown), and department turnaround ranking scorecards.
-- **User Management & Role Protection**: Protected JWT authentication with distinct access controls for **Citizens** (`user`) and **Administrators** (`admin`).
-- **Real-Time Notification Center**: Header bell dropdown notifying users and admins when tickets update.
+### 🛡️ Administrator & Official Portal
+- **Centralized Admin Dashboard**: High-level KPI metrics (Total Issues, Pending, In Progress, Resolved, Critical Alerts).
+- **Automated Department Assignment**: Department routing engine to route issues to specific city departments (Roads & Transport, Sanitation, Water Works, Electricity, Parks & Public Safety).
+- **Interactive Analytics & Hotspots**: Visual charts for department performance, category breakdown, resolution response times, and civic hotspot identification.
+- **User Directory & RBAC**: Real-time user management highlighting active administrative sessions.
+
+---
+
+## 🔒 Security & Production Hardening
+
+The platform implements multi-layer backend and frontend security controls adhering to OWASP web security recommendations:
+
+1. **HTTP Security Headers (`Helmet`)**: Protection against Cross-Site Scripting (XSS), Clickjacking, MIME Sniffing, and Referrer leakage via `helmet()` security headers.
+2. **Rate Limiting (`express-rate-limit`)**:
+   - **General API Limiter**: Max 200 requests per 15-minute window on all `/api/` endpoints to mitigate DDoS and web scraping attacks.
+   - **Authentication Limiter**: Max 20 requests per 15-minute window on `/api/auth/login` and `/api/auth/forgot-password` to prevent brute-force credential stuffing.
+3. **NoSQL Query Injection Prevention (`sanitizeInput`)**: Custom recursive middleware neutralizing dollar signs (`$`) and dots (`.`) in `req.body`, `req.query`, and `req.params` to prevent MongoDB operator injection.
+4. **Role-Based Access Control (RBAC)**: Strict server-side route guards (`protect` & `authorizeRoles("admin")`) guaranteeing administrative actions cannot be accessed by unauthorized users.
+5. **Secure Authentication & Token Management**:
+   - Password hashing using `bcryptjs` with salt rounds.
+   - JSON Web Tokens (JWT) signed with secret keys and automatic client-side 401 expiration handling.
+   - Password reset tokens generated with `crypto.randomBytes(20)` and stored as SHA-256 hashes with 30-minute expiration timestamps.
+6. **Strict CORS Policy**: Configured cross-origin policy allowing credentials for verified frontend origin URLs.
+7. **Environment Variable Isolation**: Secret keys, MongoDB connection strings, and Cloudinary credentials isolated in `.env` files protected by `.gitignore`.
 
 ---
 
@@ -38,146 +50,155 @@
 
 | Layer | Technologies Used |
 | :--- | :--- |
-| **Frontend Framework** | React 19, Vite 8, React Router v7 |
-| **Styling & UI** | TailwindCSS v4, Lucide React Icons, Glassmorphic Aesthetics |
-| **Maps & Data Visualization** | Leaflet, React-Leaflet, Recharts |
-| **HTTP & Notifications** | Axios, React Hot Toast |
-| **Backend Framework** | Node.js (ES Modules), Express.js 5 |
-| **Database & Auth** | MongoDB, Mongoose 9, JWT (JSON Web Tokens), BcryptJS |
-| **File Handling** | Multer |
+| **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React, React Leaflet, React Router DOM v7 |
+| **Backend** | Node.js, Express.js v5, Mongoose v9, MongoDB Atlas |
+| **Mapping & GIS** | Leaflet, CartoDB Voyager Basemaps, Photon Geocoding API, HTML5 Geolocation API |
+| **Security** | Helmet, Express Rate Limit, Bcrypt.js, JSON Web Tokens (JWT), Crypto |
+| **Media Uploads** | Multer, Cloudinary API, HTML5 Canvas / Camera Capture |
+| **Code Quality** | Oxlint, ESLint |
 
 ---
 
-## 📁 Project Architecture
+## 📁 Repository Structure
 
 ```
-HackMotion/
-├── client/                      # Frontend Vite + React application
+HackInMotion-RICR-HIM-1063/
+├── .gitignore                   # Root git ignore configuration
+├── README.md                    # Project documentation
+├── client/                      # Frontend React 19 Application
 │   ├── src/
-│   │   ├── components/         # Shared UI components (Navbar, Sidebar, MapView, ImageUploader, etc.)
-│   │   ├── config/             # API client base configuration
-│   │   ├── context/            # AuthContext for session & role management
-│   │   ├── pages/              # Main route views
-│   │   │   ├── admin/          # Admin Dashboard, Admin Issues, Analytics, Departments, Users
-│   │   │   ├── citizen/        # Citizen Dashboard, ReportIssue, MyIssues, IssueDetails, CityMap, Profile
-│   │   │   ├── Landing.jsx     # High-impact homepage & statistics showcase
-│   │   │   ├── Login.jsx       # User authentication login
-│   │   │   ├── Register.jsx    # Citizen account registration
-│   │   │   ├── PrivacyPolicy.jsx # Standalone Privacy Policy page
-│   │   │   └── TermsOfService.jsx # Standalone Terms of Service page
-│   │   ├── services/           # API integration service modules (issueService, analyticsService, etc.)
-│   │   └── utils/              # Helper constants, status badges, formatters
+│   │   ├── components/          # Reusable UI components (MapView, Navbar, Sidebar, etc.)
+│   │   ├── context/             # React AuthContext state provider
+│   │   ├── pages/               # Page views (Landing, CityMap, CitizenDashboard, AdminDashboard, etc.)
+│   │   ├── services/            # API services (issueService, authService, userService, analyticsService)
+│   │   ├── utils/               # Constants and helper functions
+│   │   ├── App.jsx              # Application router & routes
+│   │   └── main.jsx             # React entry point
 │   ├── package.json
 │   └── vite.config.js
-│
-└── server/                      # Backend Express 5 REST API
+└── server/                      # Backend Node.js / Express API
     ├── src/
-    │   ├── config/             # Database connection (db.js)
-    │   ├── controllers/        # Route logic (auth, issues, departments, analytics, notifications)
-    │   ├── middleware/         # Auth & Role verification middleware (authMiddleware.js)
-    │   ├── models/             # Mongoose schemas (User, Issue, Department, Notification)
-    │   ├── routes/             # Express API endpoints
-    │   └── seed.js             # Database seeder for demo data
-    ├── uploads/                # Static storage for uploaded ticket evidence images
-    ├── index.js                # Express app entry point
+    │   ├── config/              # DB connection & Cloudinary config
+    │   ├── controllers/         # API controllers (auth, issue, admin, department, analytics)
+    │   ├── middleware/          # Security, Auth Guard, Error, Upload middlewares
+    │   ├── models/              # Mongoose models (User, Issue, Department, Notification)
+    │   ├── routes/              # API route definitions
+    │   └── seed.js              # Database seeder script
+    ├── index.js                 # Server entry point
     └── package.json
 ```
 
 ---
 
+<<<<<<< HEAD
 
 
 
 ## 🚀 Quick Start & Local Setup
+=======
+## 🚀 Quickstart & Installation
+>>>>>>> feature/DB04
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas Connection URI)
+- **Node.js**: `v18.0.0` or higher
+- **npm**: `v9.0.0` or higher
+- **MongoDB**: Local instance or MongoDB Atlas URI
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-repo/CivicConnect.git
-cd CivicConnect
-```
-
-### 2. Backend Server Configuration
-Navigate to the `server` directory:
+### 1. Backend Setup
 ```bash
 cd server
 npm install
 ```
 
-Create a `.env` file in the `server` root directory:
+Create a `server/.env` file:
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/civicconnect________________
-JWT_SECRET=civic_connect_super_secret___________2026
-NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/civic_connect
+JWT_SECRET=your_super_secret_jwt_key_here
+CLIENT_URL=http://localhost:5173
 ```
 
-Seed initial municipal demo data (departments, admin account, sample citizen tickets):
+Seed initial database data (departments, admin, sample issues):
 ```bash
 npm run seed
 ```
-Start the backend API server:
+
+Start the backend server:
 ```bash
 npm run dev
 ```
-Backend API server will run on `http://localhost:5000`.
 
----
-
-### 3. Frontend Client Configuration
-In a new terminal window, navigate to the `client` directory:
+### 2. Frontend Setup
+Open a new terminal tab:
 ```bash
 cd client
 npm install
 ```
 
-Start the Vite development server:
+Create a `client/.env` file:
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+Start the frontend development server:
 ```bash
 npm run dev
 ```
-Frontend Web Portal will open at `http://localhost:5173`.
+
+Visit **`http://localhost:5173`** in your web browser.
 
 ---
 
+<<<<<<< HEAD
 
 
 
 
 ## 🔑 Demo Test Credentials
+=======
+## 🧪 Testing & Code Quality
+>>>>>>> feature/DB04
 
-| Portal Role | Email Address | Password | Privileges |
-| :--- | :--- | :--- | :--- |
-| **Citizen User** | `user@civicconnect.gov.in` | `password123` | Report issues, pin GPS map location, track ticket status, upvote duplicate complaints |
-| **Administrator** | `admin@civicconnect.gov.in` | `admin123` | Manage all city issues, reassign departments, update resolution statuses, upload fix proof photos, access Recharts analytics |
+### Client Linter Verification
+```bash
+cd client
+npx oxlint
+```
+
+### Server Linter Verification
+```bash
+cd server
+npx oxlint
+```
+
+### Production Build Verification
+```bash
+cd client
+npm run build
+```
 
 ---
 
+<<<<<<< HEAD
 
 
 
 
 
 ## 📡 REST API Reference
+=======
+## 👥 Development Team
+>>>>>>> feature/DB04
 
-### Authentication (`/api/auth`)
-- `POST /api/auth/register` — Register a new citizen account.
-- `POST /api/auth/login` — Authenticate user and issue JWT token.
-- `GET /api/auth/me` — Retrieve current authenticated profile.
-
-### Civic Issues (`/api/issues`)
-- `GET /api/issues` — Fetch all reported issues (supports category, status, priority filtering).
-- `POST /api/issues` — Submit a new civic issue ticket with GPS coords and evidence photos.
-- `GET /api/issues/:id` — Get detailed ticket timeline & department assignment info.
-- `PUT /api/issues/:id/status` — Update ticket status & upload proof photos (Admin only).
-- `POST /api/issues/:id/upvote` — Upvote an existing duplicate ticket.
-- `POST /api/issues/check-duplicate` — Check for nearby existing complaints.
-
-### Analytics & Operations (`/api/analytics`, `/api/departments`)
-- `GET /api/analytics/overview` — Get real-time municipal performance metrics.
-- `GET /api/departments` — List active municipal departments and their turnaround statistics.
+- **Vishal Dhakad** (Team Lead & Full-Stack Developer)
+- **Dikesh Choure** (Frontend & UI/UX Developer)
+- **Devendra Bankhede** (Backend & API Developer)
 
 ---
 
+<<<<<<< HEAD
+=======
+## 📄 License
+
+This project is licensed under the [ISC License](LICENSE).
+>>>>>>> feature/DB04

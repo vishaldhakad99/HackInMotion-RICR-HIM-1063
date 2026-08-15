@@ -7,8 +7,12 @@ import {
   getHotspotsAnalytics,
   getResolutionTimeAnalytics,
 } from "../controllers/analytics.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
+
+// Apply authentication middleware to protect DB analytics aggregations
+router.use(protect);
 
 router.get("/overview", getOverview);
 router.get("/categories", getCategoriesAnalytics);

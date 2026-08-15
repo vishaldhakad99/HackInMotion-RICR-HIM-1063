@@ -49,17 +49,42 @@ export const issueService = {
   checkDuplicate: async (category, location) => {
     try {
       const response = await api.get("/issues", {
-        params: { category, limit: 5 },
+        params: { category, limit: 20 },
       });
       const issues = response.data?.data?.issues || [];
-      // If any issue matches category, consider it a potential duplicate candidate
-      if (issues.length > 0) {
-        return {
-          hasDuplicate: true,
-          duplicate: issues[0],
-        };
+
+      // Filter for active/unresolved issues first
+      const activeIssues = issues.filter((iss) =>
+        ["Reported", "In Progress", "Reopened"].includes(iss.status)
+      );
+
+      if (activeIssues.length === 0) {
+        return { hasDuplicate: false };
       }
-      return { hasDuplicate: false };
+
+      // If location coordinates are available, check proximity (~500m / 0.005 degrees)
+      if (location && location.latitude != null && location.longitude != null) {
+        const nearby = activeIssues.find((iss) => {
+          if (iss.location?.latitude != null && iss.location?.longitude != null) {
+            const latDiff = Math.abs(iss.location.latitude - location.latitude);
+            const lngDiff = Math.abs(iss.location.longitude - location.longitude);
+            // ~0.005 degrees is approx 500 meters
+            return latDiff <= 0.005 && lngDiff <= 0.005;
+          }
+          return false;
+        });
+
+        if (nearby) {
+          return { hasDuplicate: true, duplicate: nearby };
+        }
+        return { hasDuplicate: false };
+      }
+
+      // Fallback if no coordinates: treat first active issue in category as potential candidate
+      return {
+        hasDuplicate: true,
+        duplicate: activeIssues[0],
+      };
     } catch {
       return { hasDuplicate: false };
     }

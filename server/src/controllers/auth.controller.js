@@ -1,13 +1,14 @@
 import User from "../models/user.model.js";
 import { generateToken } from "../utils/token.js";
 import { successResponse, errorResponse } from "../utils/response.js";
+import crypto from "crypto";
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return errorResponse(res, 400, "Please provide name, email, and password");
@@ -22,7 +23,7 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password,
-      role: role || "user",
+      role: "user", // Public registration is strictly scoped to 'user' role
     });
 
     if (user) {
@@ -119,4 +120,79 @@ export const updateProfile = async (req, res) => {
     return errorResponse(res, 500, error.message);
   }
 };
+
+// @desc    Forgot Password - generate reset token
+// @route   POST /api/auth/forgot-password
+// @access  Public
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return errorResponse(res, 400, "Please provide an email address");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return errorResponse(res, 404, "No account found with this email address");
+    }
+
+    // Get reset token
+    const resetToken = user.getResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    return successResponse(res, 200, "Password reset instructions sent.", {
+      resetToken,
+      email: user.email,
+    });
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+
+// @desc    Reset Password using token
+// @route   PUT /api/auth/reset-password/:resetToken
+// @access  Public
+export const resetPassword = async (req, res) => {
+  try {
+    const { resetToken } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+      return errorResponse(res, 400, "Please provide a new password");
+    }
+
+    if (password.length < 6) {
+      return errorResponse(res, 400, "Password must be at least 6 characters long");
+    }
+
+    // Hash token to compare with DB
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return errorResponse(res, 400, "Invalid or expired password reset token");
+    }
+
+    // Set new password
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    return successResponse(res, 200, "Password reset successful. Please login with your new password.");
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+
 

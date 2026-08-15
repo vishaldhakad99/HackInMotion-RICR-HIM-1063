@@ -1,12 +1,14 @@
 import express from "express";
 import upload from "../middleware/upload.middleware.js";
 import { uploadImage } from "../controllers/upload.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// Allow single file upload field 'image' or 'file', or fallback
+// Allow single file upload field 'image' or 'file', or fallback (Protected)
 router.post(
   "/image",
+  protect,
   (req, res, next) => {
     // Multer upload wrapper to handle single or multiple uploads gracefully
     upload.single("image")(req, res, (err) => {

@@ -3,13 +3,20 @@ import Department from "../models/department.model.js";
 import Notification from "../models/notification.model.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
+// Helper to safely escape user input for Regular Expression queries
+const escapeRegex = (str) => {
+  if (typeof str !== "string") return "";
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
 // Helper function to auto-assign department by category
 const findDepartmentForCategory = async (category) => {
   if (!category) return null;
+  const safeCategory = escapeRegex(category);
   const dept = await Department.findOne({
     $or: [
-      { name: new RegExp(category, "i") },
-      { code: new RegExp(category, "i") },
+      { name: new RegExp(safeCategory, "i") },
+      { code: new RegExp(safeCategory, "i") },
     ],
   });
   return dept ? dept._id : null;
@@ -62,14 +69,15 @@ export const getIssues = async (req, res) => {
     const filter = {};
 
     if (status) filter.status = status;
-    if (category) filter.category = new RegExp(category, "i");
+    if (category) filter.category = new RegExp(escapeRegex(category), "i");
     if (department) filter.department = department;
     if (search) {
+      const safeSearch = escapeRegex(search);
       filter.$or = [
-        { title: new RegExp(search, "i") },
-        { description: new RegExp(search, "i") },
-        { "location.address": new RegExp(search, "i") },
-        { "location.city": new RegExp(search, "i") },
+        { title: new RegExp(safeSearch, "i") },
+        { description: new RegExp(safeSearch, "i") },
+        { "location.address": new RegExp(safeSearch, "i") },
+        { "location.city": new RegExp(safeSearch, "i") },
       ];
     }
 
@@ -185,7 +193,10 @@ export const updateIssue = async (req, res) => {
     if (location) issue.location = { ...issue.location, ...location };
     if (images) issue.images = images;
     if (priority) issue.priority = priority;
-    if (department) issue.department = department;
+    // Only administrators are allowed to change/reassign the department of an issue
+    if (department && req.user.role === "admin") {
+      issue.department = department;
+    }
 
     await issue.save();
 
