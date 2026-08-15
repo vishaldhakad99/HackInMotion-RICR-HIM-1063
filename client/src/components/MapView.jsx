@@ -71,7 +71,7 @@ const createSearchLocationIcon = () => {
 };
 
 // High-Reliability Map Tile Providers Configuration
-const MAP_TILE_PROVIDERS = {
+export const MAP_TILE_PROVIDERS = {
   standard: {
     id: "standard",
     name: "OpenStreetMap",
