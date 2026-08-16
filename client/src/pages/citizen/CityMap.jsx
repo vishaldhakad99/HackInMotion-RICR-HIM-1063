@@ -117,7 +117,7 @@ const CityMap = () => {
       <main className="flex-1 relative w-full h-full overflow-hidden flex flex-col px-4 sm:px-6 md:px-8 lg:px-12 pt-3 pb-24 gap-3">
         
         {/* Top Control Header Bar: Positioned ABOVE the map */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shrink-0">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shrink-0 relative z-30">
           {/* Left Title & Back button Pill */}
           <div className="bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3 shrink-0">
             <Link
@@ -140,7 +140,7 @@ const CityMap = () => {
           </div>
 
           {/* Right Search Box & Filter Options Bar (Above the Map) */}
-          <div className="bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-2">
+          <div className="bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-2 relative z-40">
             {/* City Search Bar */}
             <div className="relative flex-1 sm:w-60 min-w-[180px]" ref={dropdownRef}>
               <div className="relative">
@@ -171,7 +171,7 @@ const CityMap = () => {
 
               {/* City Suggestions Dropdown */}
               {showDropdown && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-[2000] max-h-60 overflow-y-auto divide-y divide-slate-100">
+                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-slate-200 py-1.5 z-[3000] max-h-60 overflow-y-auto divide-y divide-slate-100">
                   {suggestions.map((item) => (
                     <button
                       key={item.id}
@@ -242,7 +242,7 @@ const CityMap = () => {
         </div>
 
         {/* Dedicated Map Container Box (Positioned BELOW the control header bar) */}
-        <div className="w-full flex-1 relative rounded-2xl md:rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden bg-slate-100 min-h-[300px]">
+        <div className="w-full flex-1 relative rounded-2xl md:rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden bg-slate-100 min-h-[300px] z-10">
           {loading ? (
             <Loader text="Loading city map..." />
           ) : error ? (
