@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import { generateToken } from "../utils/token.js";
 import { successResponse, errorResponse } from "../utils/response.js";
+import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
 
 // @desc    Register a new user
@@ -121,7 +122,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// @desc    Forgot Password - generate reset token
+// @desc    Forgot Password - generate reset token & send email
 // @route   POST /api/auth/forgot-password
 // @access  Public
 export const forgotPassword = async (req, res) => {
@@ -138,14 +139,69 @@ export const forgotPassword = async (req, res) => {
       return errorResponse(res, 404, "No account found with this email address");
     }
 
-    // Get reset token
+    // Get reset token (unhashed token for email link, hashed token saved to DB)
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    return successResponse(res, 200, "Password reset instructions sent.", {
-      resetToken,
-      email: user.email,
-    });
+    // Create reset URL (FRONTEND_URL/reset-password/<token>)
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    const message = `You are receiving this email because you (or someone else) requested a password reset for your CivicConnect account.\n\nPlease click on the following link or paste it into your browser to complete the process:\n\n${resetUrl}\n\nThis link will expire in 30 minutes.\n\nIf you did not request this, please ignore this email and your password will remain unchanged.`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h2 style="color: #0284c7; margin: 0; font-size: 24px;">CivicConnect</h2>
+          <p style="color: #64748b; font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-top: 4px;">SMART CITY PLATFORM</p>
+        </div>
+        <div style="padding: 20px; background-color: #f8fafc; border-radius: 8px; margin-bottom: 24px; border: 1px solid #f1f5f9;">
+          <h3 style="color: #0f172a; margin-top: 0; font-size: 16px;">Password Reset Request</h3>
+          <p style="color: #334155; font-size: 14px; line-height: 1.6;">
+            We received a request to reset the password for your CivicConnect account associated with <strong>${user.email}</strong>.
+          </p>
+          <p style="color: #334155; font-size: 14px; line-height: 1.6;">
+            Click the button below to reset your password. This link is valid for <strong>30 minutes</strong>.
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${resetUrl}" style="background-color: #0284c7; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="color: #64748b; font-size: 12px; line-height: 1.5;">
+            If the button doesn't work, copy and paste the following link into your browser:<br/>
+            <a href="${resetUrl}" style="color: #0284c7; word-break: break-all;">${resetUrl}</a>
+          </p>
+        </div>
+        <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0;">
+          If you did not request a password reset, please ignore this email and your password will remain unchanged.
+        </p>
+      </div>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "CivicConnect - Password Reset Request",
+        message,
+        html,
+      });
+
+      return successResponse(
+        res,
+        200,
+        "Password reset link has been sent to your email address."
+      );
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return errorResponse(
+        res,
+        500,
+        "Email could not be sent. Please verify your email server configuration."
+      );
+    }
   } catch (error) {
     return errorResponse(res, 500, error.message);
   }
