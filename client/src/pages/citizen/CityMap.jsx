@@ -113,12 +113,13 @@ const CityMap = () => {
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-slate-50 font-sans">
       <Navbar />
 
-      {/* Main Full-Bleed Map Canvas Container */}
-      <main className="flex-1 relative w-full h-full overflow-hidden flex flex-col">
-        {/* Floating Top Control Toolbar */}
-        <div className="absolute top-4 left-4 right-4 z-[1000] pointer-events-none flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 max-w-7xl mx-auto">
+      {/* Main Container with side spacing and ~1-inch (96px / pb-24) bottom gap */}
+      <main className="flex-1 relative w-full h-full overflow-hidden flex flex-col px-4 sm:px-6 md:px-8 lg:px-12 pt-3 pb-24 gap-3">
+        
+        {/* Top Control Header Bar: Positioned ABOVE the map */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shrink-0 relative z-30">
           {/* Left Title & Back button Pill */}
-          <div className="pointer-events-auto bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200/80 shadow-lg flex items-center gap-3">
+          <div className="bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3 shrink-0">
             <Link
               to="/"
               className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition cursor-pointer"
@@ -138,8 +139,8 @@ const CityMap = () => {
             </div>
           </div>
 
-          {/* Right Search & Filters Bar */}
-          <div className="pointer-events-auto bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-slate-200/80 shadow-lg flex flex-wrap items-center gap-2">
+          {/* Right Search Box & Filter Options Bar (Above the Map) */}
+          <div className="bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-2 relative z-40">
             {/* City Search Bar */}
             <div className="relative flex-1 sm:w-60 min-w-[180px]" ref={dropdownRef}>
               <div className="relative">
@@ -170,7 +171,7 @@ const CityMap = () => {
 
               {/* City Suggestions Dropdown */}
               {showDropdown && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-[2000] max-h-60 overflow-y-auto divide-y divide-slate-100">
+                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-slate-200 py-1.5 z-[3000] max-h-60 overflow-y-auto divide-y divide-slate-100">
                   {suggestions.map((item) => (
                     <button
                       key={item.id}
@@ -240,67 +241,10 @@ const CityMap = () => {
           </div>
         </div>
 
-        {/* Floating Bottom Legend Drawer */}
-        {showLegend && (
-          <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200/90 shadow-xl text-xs max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-150">
-            <div className="flex items-center justify-between gap-3 mb-2 pb-1.5 border-b border-slate-100 font-extrabold text-slate-800">
-              <div className="flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-sky-600" />
-                <span>Map Color Pin Legend</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowLegend(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="space-y-1.5 text-[11px] text-slate-600">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-                <span>Reported / Reopened</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0"></span>
-                <span>In Progress</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                <span>Resolved / Verified / Closed</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
-                <span>Critical / Rejected</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Focused City Indicator Badge */}
-        {searchedLocation && (
-          <div className="absolute bottom-4 right-4 z-[1000] bg-indigo-900/90 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-indigo-700 shadow-xl text-white text-xs flex items-center gap-2.5">
-            <MapPin className="w-4 h-4 text-indigo-300 animate-bounce" />
-            <div>
-              <p className="font-bold leading-none">{searchedLocation.address.split(",")[0]}</p>
-              <p className="text-[9px] text-indigo-200 mt-0.5 font-mono">
-                {searchedLocation.latitude}, {searchedLocation.longitude}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              className="ml-1 px-2 py-0.5 bg-indigo-800 hover:bg-indigo-700 text-indigo-200 hover:text-white rounded-lg text-[10px] font-bold transition cursor-pointer"
-            >
-              Reset
-            </button>
-          </div>
-        )}
-
-        {/* 100% Full Canvas Height Map View */}
-        <div className="w-full h-full flex-1 relative bg-slate-100">
+        {/* Dedicated Map Container Box (Positioned BELOW the control header bar) */}
+        <div className="w-full flex-1 relative rounded-2xl md:rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden bg-slate-100 min-h-[300px] z-10">
           {loading ? (
-            <Loader text="Loading full-page city map..." />
+            <Loader text="Loading city map..." />
           ) : error ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
               <ErrorMessage message={error} onRetry={fetchMapIssues} />
@@ -312,6 +256,63 @@ const CityMap = () => {
               zoom={12}
               className="w-full h-full"
             />
+          )}
+
+          {/* Floating Bottom Legend Drawer inside map canvas area */}
+          {showLegend && (
+            <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200/90 shadow-xl text-xs max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-150">
+              <div className="flex items-center justify-between gap-3 mb-2 pb-1.5 border-b border-slate-100 font-extrabold text-slate-800">
+                <div className="flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-sky-600" />
+                  <span>Map Color Pin Legend</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowLegend(false)}
+                  className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="space-y-1.5 text-[11px] text-slate-600">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                  <span>Reported / Reopened</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0"></span>
+                  <span>In Progress</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                  <span>Resolved / Verified / Closed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
+                  <span>Critical / Rejected</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Focused City Indicator Badge inside map canvas area */}
+          {searchedLocation && (
+            <div className="absolute bottom-4 right-4 z-[1000] bg-indigo-900/90 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-indigo-700 shadow-xl text-white text-xs flex items-center gap-2.5">
+              <MapPin className="w-4 h-4 text-indigo-300 animate-bounce" />
+              <div>
+                <p className="font-bold leading-none">{searchedLocation.address.split(",")[0]}</p>
+                <p className="text-[9px] text-indigo-200 mt-0.5 font-mono">
+                  {searchedLocation.latitude}, {searchedLocation.longitude}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="ml-1 px-2 py-0.5 bg-indigo-800 hover:bg-indigo-700 text-indigo-200 hover:text-white rounded-lg text-[10px] font-bold transition cursor-pointer"
+              >
+                Reset
+              </button>
+            </div>
           )}
         </div>
       </main>
