@@ -24,7 +24,8 @@
     "mongodb": "^7.5.0",
     "mongoose": "^9.9.2",
     "multer": "^2.2.0",
-    "multer-storage-cloudinary": "^4.0.0"
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^9.0.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

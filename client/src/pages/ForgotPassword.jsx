@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Building2, Mail, ArrowLeft, Loader2, CheckCircle2, KeyRound } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Building2, Mail, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { authService } from "../services/authService";
 
@@ -8,8 +8,6 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [resetToken, setResetToken] = useState(null);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +20,8 @@ const ForgotPassword = () => {
       setLoading(true);
       const res = await authService.forgotPassword(email);
       if (res.success) {
-        toast.success(res.message || "Reset link generated.");
+        toast.success(res.message || "Reset link sent to your email.");
         setSubmitted(true);
-        if (res.data?.resetToken) {
-          setResetToken(res.data.resetToken);
-        }
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to process forgot password request.");
@@ -70,30 +65,11 @@ const ForgotPassword = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Request Sent Successfully!</h3>
-                <p className="text-xs text-slate-600 mt-1">
-                  Password reset instructions have been generated for <strong className="text-slate-800">{email}</strong>.
+                <h3 className="text-lg font-bold text-slate-900">Reset Link Sent Successfully!</h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Password reset instructions have been sent to <strong className="text-slate-800">{email}</strong>. Please check your email inbox (and spam folder) to reset your password.
                 </p>
               </div>
-
-              {resetToken && (
-                <div className="p-4 bg-sky-50 border border-sky-200 rounded-2xl text-left space-y-3">
-                  <div className="flex items-center gap-2 text-sky-900 font-extrabold text-xs">
-                    <KeyRound className="w-4 h-4 text-sky-600" />
-                    <span>Reset Link Ready</span>
-                  </div>
-                  <p className="text-[11px] text-slate-600">
-                    Click the button below to proceed directly to the Password Reset page.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/reset-password/${resetToken}`)}
-                    className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>Proceed to Reset Password</span>
-                  </button>
-                </div>
-              )}
 
               <div className="pt-2">
                 <Link

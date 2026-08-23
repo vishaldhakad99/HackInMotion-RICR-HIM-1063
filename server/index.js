@@ -31,6 +31,7 @@ app.use(securityHeaders);
 // Configurable CORS Policy
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
   "http://localhost:5173",
   "http://localhost:3000",
   "http://127.0.0.1:5173",
@@ -39,10 +40,18 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS policy"), false);
+        console.warn(`[CORS Blocked] Request from origin: ${origin}`);
+        callback(null, false);
       }
     },
     credentials: true,
