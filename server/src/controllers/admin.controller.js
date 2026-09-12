@@ -22,6 +22,7 @@ export const getDashboard = async (req, res) => {
       rejected: await Issue.countDocuments({ status: "Rejected" }),
     };
 
+    
     const priorityCounts = {
       critical: await Issue.countDocuments({ priority: "Critical" }),
       high: await Issue.countDocuments({ priority: "High" }),
@@ -176,6 +177,7 @@ export const submitResolution = async (req, res) => {
       return errorResponse(res, 404, "Issue not found");
     }
 
+    
     issue.status = "Resolved";
     issue.resolution = {
       details,
