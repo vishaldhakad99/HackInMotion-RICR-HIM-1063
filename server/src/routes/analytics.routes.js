@@ -7,18 +7,19 @@ import {
   getHotspotsAnalytics,
   getResolutionTimeAnalytics,
 } from "../controllers/analytics.controller.js";
-import { protect } from "../middleware/auth.middleware.js";
+import { protect, optionalAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// Apply authentication middleware to protect DB analytics aggregations
-router.use(protect);
+// System overview - accessible with optional authentication (public/authorized)
+router.get("/overview", optionalAuth, getOverview);
 
-router.get("/overview", getOverview);
-router.get("/categories", getCategoriesAnalytics);
-router.get("/status", getStatusAnalytics);
-router.get("/departments", getDepartmentsAnalytics);
-router.get("/hotspots", getHotspotsAnalytics);
-router.get("/resolution-time", getResolutionTimeAnalytics);
+// Protected database analytics aggregations
+router.get("/categories", protect, getCategoriesAnalytics);
+router.get("/status", protect, getStatusAnalytics);
+router.get("/departments", protect, getDepartmentsAnalytics);
+router.get("/hotspots", protect, getHotspotsAnalytics);
+router.get("/resolution-time", protect, getResolutionTimeAnalytics);
 
 export default router;
+

@@ -1,333 +1,333 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import {
-  Building2,
-  Bell,
-  User,
-  LogOut,
-  Menu,
-  X,
-  PlusCircle,
-  MapPin,
-  LayoutDashboard,
-} from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { notificationService } from "../services/notificationService";
+  import React, { useState, useEffect } from "react";
+  import { Link, useNavigate, useLocation } from "react-router-dom";
+  import {
+    Building2,
+    Bell,
+    User,
+    LogOut,
+    Menu,
+    X,
+    PlusCircle,
+    MapPin,
+    LayoutDashboard,
+  } from "lucide-react";
+  import { useAuth } from "../context/AuthContext";
+  import { notificationService } from "../services/notificationService";
 
-const Navbar = () => {
-  const { user, isAuthenticated, logout, role } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const Navbar = () => {
+    const { user, isAuthenticated, logout, role } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [notificationsOpen, setNotificationsOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchNotifications();
-    }
-  }, [isAuthenticated, location.pathname]);
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await notificationService.getNotifications();
-      if (res.success && res.data) {
-        setNotifications(res.data.notifications || []);
-        setUnreadCount(res.data.unreadCount || 0);
+    useEffect(() => {
+      if (isAuthenticated) {
+        fetchNotifications();
       }
-    } catch {
-      // Ignore background notification fetch errors
-    }
-  };
+    }, [isAuthenticated, location.pathname]);
 
-  const handleMarkRead = async (id) => {
-    try {
-      await notificationService.markAsRead(id);
-      fetchNotifications();
-    } catch {
-      // Ignore error
-    }
-  };
+    const fetchNotifications = async () => {
+      try {
+        const res = await notificationService.getNotifications();
+        if (res.success && res.data) {
+          setNotifications(res.data.notifications || []);
+          setUnreadCount(res.data.unreadCount || 0);
+        }
+      } catch {
+        // Ignore background notification fetch errors
+      }
+    };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+    const handleMarkRead = async (id) => {
+      try {
+        await notificationService.markAsRead(id);
+        fetchNotifications();
+      } catch {
+        // Ignore error
+      }
+    };
 
-  const dashboardPath = role === "admin" ? "/admin" : "/dashboard";
-  const hasSidebar = isAuthenticated && location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/register";
+    const handleLogout = () => {
+      logout();
+      navigate("/login");
+    };
 
-  return (
-    <header className={`sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-300 ${hasSidebar ? "md:ml-64" : ""}`}>
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo */}
-          <Link to="/" className={`flex items-center gap-3 group ${hasSidebar ? "md:hidden" : ""}`}>
-            <div className="w-10 h-10 bg-[#0088cc] rounded-xl flex items-center justify-center text-white shadow-md shadow-sky-600/20 group-hover:scale-105 transition-transform duration-200">
-              <Building2 className="w-5 h-5 stroke-[2.2]" />
+    const dashboardPath = role === "admin" ? "/admin" : "/dashboard";
+    const hasSidebar = isAuthenticated && location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/register";
+
+    return (
+      <header className={`sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-300 ${hasSidebar ? "md:ml-64" : ""}`}>
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            {/* Logo */}
+            <Link to="/" className={`flex items-center gap-3 group ${hasSidebar ? "md:hidden" : ""}`}>
+              <div className="w-10 h-10 bg-[#0088cc] rounded-xl flex items-center justify-center text-white shadow-md shadow-sky-600/20 group-hover:scale-105 transition-transform duration-200">
+                <Building2 className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-extrabold text-xl tracking-tight text-[#0f172a] leading-none">
+                  Civic<span className="text-[#0088cc]">Connect</span>
+                </span>
+                <span className="text-[9px] text-[#0088cc] font-extrabold tracking-widest uppercase mt-1">
+                  SMART CITY PLATFORM
+                </span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-8">
+              <Link
+                to="/"
+                className={`text-sm font-bold transition-colors duration-200 ${
+                  location.pathname === "/"
+                    ? "text-[#0088cc]"
+                    : "text-slate-700 hover:text-[#0088cc]"
+                }`}
+              >
+                Home
+              </Link>
+
+              <Link
+                to="/city-map"
+                className={`text-sm font-bold flex items-center gap-1.5 transition-colors duration-200 ${
+                  location.pathname === "/city-map"
+                    ? "text-[#0088cc]"
+                    : "text-slate-700 hover:text-[#0088cc]"
+                }`}
+              >
+                <MapPin className="w-4 h-4 text-[#0088cc]" />
+                Live Location Map
+              </Link>
+
+              {isAuthenticated && (
+                <>
+                  <Link
+                    to={dashboardPath}
+                    className={`text-sm font-bold flex items-center gap-1.5 transition-colors duration-200 ${
+                      location.pathname.startsWith("/admin") || location.pathname === "/dashboard"
+                        ? "text-[#0088cc]"
+                        : "text-slate-700 hover:text-[#0088cc]"
+                    }`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                    Dashboard
+                  </Link>
+
+                  {role !== "admin" && (
+                    <Link
+                      to="/report-issue"
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0088cc] hover:bg-[#0077bb] text-white text-xs font-bold rounded-full shadow-sm transition-all transform hover:scale-[1.02]"
+                    >
+                      <PlusCircle className="w-4 h-4 stroke-[2.5]" />
+                      Report Issue
+                    </Link>
+                  )}
+                </>
+              )}
+            </nav>
+
+            {/* User Auth Buttons / Profile Dropdown */}
+            <div className="hidden md:flex items-center gap-4">
+              {isAuthenticated ? (
+                <div className="flex items-center gap-3 relative">
+                  {/* Notifications Bell */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setNotificationsOpen(!notificationsOpen)}
+                      className="p-2 text-slate-600 hover:text-sky-600 hover:bg-slate-100 rounded-xl transition relative"
+                      aria-label="Notifications"
+                    >
+                      <Bell className="w-5 h-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-sky-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Notifications Dropdown */}
+                    {notificationsOpen && (
+                      <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50">
+                        <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                          <h4 className="font-bold text-sm text-slate-900">Notifications</h4>
+                          <span className="text-xs text-slate-500">{unreadCount} unread</span>
+                        </div>
+                        <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                          {notifications.length === 0 ? (
+                            <div className="p-4 text-center text-xs text-slate-500">No notifications yet</div>
+                          ) : (
+                            notifications.map((n) => (
+                              <div
+                                key={n._id}
+                                onClick={() => handleMarkRead(n._id)}
+                                className={`p-3 text-xs cursor-pointer hover:bg-slate-50 transition ${
+                                  !n.isRead ? "bg-sky-50/60" : ""
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-1">
+                                  <p className="font-bold text-slate-900">{n.title}</p>
+                                  {!n.isRead && (
+                                    <span className="w-2 h-2 rounded-full bg-sky-600 shrink-0"></span>
+                                  )}
+                                </div>
+                                <p className="text-slate-600 mt-1 leading-snug">{n.message}</p>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Profile Trigger */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                      className="flex items-center gap-2.5 p-1.5 rounded-xl border border-slate-200 hover:border-sky-300 bg-slate-50/60 transition"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-600 to-cyan-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs overflow-hidden">
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
+                        )}
+                      </div>
+                      <div className="text-left hidden lg:block">
+                        <p className="text-xs font-bold text-slate-900 leading-tight">{user?.name}</p>
+                        <p className="text-[10px] text-slate-500 font-medium capitalize">
+                          {user?.role === "admin" ? "Administrator" : "Citizen"}
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* Profile Dropdown */}
+                    {userDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-1.5 z-50">
+                        <div className="px-4 py-2 border-b border-slate-100">
+                          <p className="text-xs font-bold text-slate-900">{user?.name}</p>
+                          <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
+                        </div>
+
+                        <Link
+                          to={user?.role === "admin" ? "/admin/profile" : "/profile"}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                        >
+                          <User className="w-4 h-4 text-slate-400" />
+                          My Profile
+                        </Link>
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition border-t border-slate-100"
+                        >
+                          <LogOut className="w-4 h-4 text-red-500" />
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <Link
+                    to="/login"
+                    className="px-3 py-2 text-xs font-bold text-slate-800 hover:text-[#0088cc] transition"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="px-6 py-2.5 bg-[#0088cc] hover:bg-[#0077bb] text-white text-xs font-extrabold rounded-full shadow-md shadow-sky-600/20 transition-all transform hover:scale-[1.02]"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
             </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-xl tracking-tight text-[#0f172a] leading-none">
-                Civic<span className="text-[#0088cc]">Connect</span>
-              </span>
-              <span className="text-[9px] text-[#0088cc] font-extrabold tracking-widest uppercase mt-1">
-                SMART CITY PLATFORM
-              </span>
-            </div>
-          </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8">
+            {/* Mobile Hamburger Toggle */}
+            <div className="md:hidden flex items-center gap-2">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                aria-label="Toggle Menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-3">
             <Link
               to="/"
-              className={`text-sm font-bold transition-colors duration-200 ${
-                location.pathname === "/"
-                  ? "text-[#0088cc]"
-                  : "text-slate-700 hover:text-[#0088cc]"
-              }`}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
             >
               Home
             </Link>
-
             <Link
               to="/city-map"
-              className={`text-sm font-bold flex items-center gap-1.5 transition-colors duration-200 ${
-                location.pathname === "/city-map"
-                  ? "text-[#0088cc]"
-                  : "text-slate-700 hover:text-[#0088cc]"
-              }`}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
             >
-              <MapPin className="w-4 h-4 text-[#0088cc]" />
               Live Location Map
             </Link>
 
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
                 <Link
                   to={dashboardPath}
-                  className={`text-sm font-bold flex items-center gap-1.5 transition-colors duration-200 ${
-                    location.pathname.startsWith("/admin") || location.pathname === "/dashboard"
-                      ? "text-[#0088cc]"
-                      : "text-slate-700 hover:text-[#0088cc]"
-                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
                 >
-                  <LayoutDashboard className="w-4 h-4 text-slate-400" />
                   Dashboard
                 </Link>
-
                 {role !== "admin" && (
                   <Link
                     to="/report-issue"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0088cc] hover:bg-[#0077bb] text-white text-xs font-bold rounded-full shadow-sm transition-all transform hover:scale-[1.02]"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-2 text-sm font-bold text-sky-600"
                   >
-                    <PlusCircle className="w-4 h-4 stroke-[2.5]" />
-                    Report Issue
+                    + Report Issue
                   </Link>
                 )}
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left py-2 text-sm font-semibold text-red-600"
+                >
+                  Logout
+                </button>
               </>
-            )}
-          </nav>
-
-          {/* User Auth Buttons / Profile Dropdown */}
-          <div className="hidden md:flex items-center gap-4">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-3 relative">
-                {/* Notifications Bell */}
-                <div className="relative">
-                  <button
-                    onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className="p-2 text-slate-600 hover:text-sky-600 hover:bg-slate-100 rounded-xl transition relative"
-                    aria-label="Notifications"
-                  >
-                    <Bell className="w-5 h-5" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-sky-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Notifications Dropdown */}
-                  {notificationsOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50">
-                      <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                        <h4 className="font-bold text-sm text-slate-900">Notifications</h4>
-                        <span className="text-xs text-slate-500">{unreadCount} unread</span>
-                      </div>
-                      <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
-                        {notifications.length === 0 ? (
-                          <div className="p-4 text-center text-xs text-slate-500">No notifications yet</div>
-                        ) : (
-                          notifications.map((n) => (
-                            <div
-                              key={n._id}
-                              onClick={() => handleMarkRead(n._id)}
-                              className={`p-3 text-xs cursor-pointer hover:bg-slate-50 transition ${
-                                !n.isRead ? "bg-sky-50/60" : ""
-                              }`}
-                            >
-                              <div className="flex items-start justify-between gap-1">
-                                <p className="font-bold text-slate-900">{n.title}</p>
-                                {!n.isRead && (
-                                  <span className="w-2 h-2 rounded-full bg-sky-600 shrink-0"></span>
-                                )}
-                              </div>
-                              <p className="text-slate-600 mt-1 leading-snug">{n.message}</p>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Profile Trigger */}
-                <div className="relative">
-                  <button
-                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2.5 p-1.5 rounded-xl border border-slate-200 hover:border-sky-300 bg-slate-50/60 transition"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-600 to-cyan-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs overflow-hidden">
-                      {user?.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
-                      )}
-                    </div>
-                    <div className="text-left hidden lg:block">
-                      <p className="text-xs font-bold text-slate-900 leading-tight">{user?.name}</p>
-                      <p className="text-[10px] text-slate-500 font-medium capitalize">
-                        {user?.role === "admin" ? "Administrator" : "Citizen"}
-                      </p>
-                    </div>
-                  </button>
-
-                  {/* Profile Dropdown */}
-                  {userDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-1.5 z-50">
-                      <div className="px-4 py-2 border-b border-slate-100">
-                        <p className="text-xs font-bold text-slate-900">{user?.name}</p>
-                        <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
-                      </div>
-
-                      <Link
-                        to={user?.role === "admin" ? "/admin/profile" : "/profile"}
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
-                      >
-                        <User className="w-4 h-4 text-slate-400" />
-                        My Profile
-                      </Link>
-
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition border-t border-slate-100"
-                      >
-                        <LogOut className="w-4 h-4 text-red-500" />
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
             ) : (
-              <div className="flex items-center gap-4">
+              <div className="pt-2 flex flex-col gap-2">
                 <Link
                   to="/login"
-                  className="px-3 py-2 text-xs font-bold text-slate-800 hover:text-[#0088cc] transition"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center text-sm font-bold text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50"
                 >
                   Log In
                 </Link>
                 <Link
                   to="/register"
-                  className="px-6 py-2.5 bg-[#0088cc] hover:bg-[#0077bb] text-white text-xs font-extrabold rounded-full shadow-md shadow-sky-600/20 transition-all transform hover:scale-[1.02]"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center text-sm font-bold text-white bg-gradient-to-r from-sky-600 to-cyan-600 rounded-xl"
                 >
                   Register
                 </Link>
               </div>
             )}
           </div>
+        )}
+      </header>
+    );
+  };
 
-          {/* Mobile Hamburger Toggle */}
-          <div className="md:hidden flex items-center gap-2">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition"
-              aria-label="Toggle Menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-3">
-          <Link
-            to="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
-          >
-            Home
-          </Link>
-          <Link
-            to="/city-map"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
-          >
-            Live Location Map
-          </Link>
-
-          {isAuthenticated ? (
-            <>
-              <Link
-                to={dashboardPath}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-sm font-semibold text-slate-800 hover:text-sky-600"
-              >
-                Dashboard
-              </Link>
-              {role !== "admin" && (
-                <Link
-                  to="/report-issue"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 text-sm font-bold text-sky-600"
-                >
-                  + Report Issue
-                </Link>
-              )}
-              <button
-                onClick={handleLogout}
-                className="w-full text-left py-2 text-sm font-semibold text-red-600"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <div className="pt-2 flex flex-col gap-2">
-              <Link
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-sm font-bold text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50"
-              >
-                Log In
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-sm font-bold text-white bg-gradient-to-r from-sky-600 to-cyan-600 rounded-xl"
-              >
-                Register
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
-    </header>
-  );
-};
-
-export default Navbar;
+  export default Navbar;

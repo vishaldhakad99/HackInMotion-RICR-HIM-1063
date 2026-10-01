@@ -19,7 +19,7 @@ const Register = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -62,7 +62,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Navbar />
-
+      
       <div className="flex-1 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 mb-6">
           <Link to="/" className="inline-flex items-center justify-center group">
